@@ -22,7 +22,7 @@ struct Joint {
 	//       bones to calculate the actual animation.
 	int id;
 	int parent;
-	glm::vec4 offset;
+	glm::vec3 offset;
 }typedef Joint;
 
 struct Bone {

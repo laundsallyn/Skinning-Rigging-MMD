@@ -6,6 +6,8 @@
 #include <glm/gtx/io.hpp>
 #include <glm/gtx/transform.hpp>
 
+#include <vector>
+
 /*
  * For debugging purpose.
  */
@@ -46,6 +48,28 @@ void Mesh::loadpmd(const std::string& fn)
 
 	// FIXME: load skeleton and blend weights from PMD file
 	//        also initialize the skeleton as needed
+	int id = 0;
+	glm::vec3 offset;
+	int parent;
+
+	std::vector<Joint> jointList;
+
+	while (mr.getJoint(id, offset, parent)) {
+		//create Joints with data
+		std::cout << "  id = " << id << std::endl;
+		std::cout << "    parentID = " << parent << std::endl;
+		Joint j;
+		j.id = id;
+		j.offset = offset;
+		j.parent = parent;
+
+		jointList.push_back(j);
+
+		++id;
+	}
+	std::cout << "Number of Joints found: " << id << std::endl;
+	std::cout << "Joint List size: " << jointList.size() << std::endl;
+
 }
 
 void Mesh::updateAnimation()
