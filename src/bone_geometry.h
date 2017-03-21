@@ -22,6 +22,29 @@ struct Joint {
 	//       bones to calculate the actual animation.
 };
 
+struct Bone {
+    // Bone data structure
+    Bone(glm::vec4 s, glm::vec4 e){
+        start = s;
+        end = e;
+        tangent = glm::vec4 (glm::normalize(glm::vec3(end-start)),0);
+        int normalInd = abs(tangent.x) < abs(tangent.y) ? 0 : 1;
+        normalInd = abs(tangent[normalInd]) < abs(tangent.z) ? normalInd : 2;
+        normal = glm::vec4 (0,0,0,1);
+        normal[normalInd] = 1;
+        normal = glm::cross(tangent,normal);
+        normal /= glm::length(normal);
+        bd = glm::normalize(glm::cross(tangent,normal));
+    }
+
+    glm::vec4 start;
+    glm::vec4 end;
+    glm::vec4 tangent;
+    glm::vec4 normal;
+    glm::vec4 bd; // Binormal direction
+
+};
+
 
 struct Skeleton {
 	// FIXME: create skeleton and bone data structures
