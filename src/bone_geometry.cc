@@ -52,24 +52,39 @@ void Mesh::loadpmd(const std::string& fn)
 	glm::vec3 offset;
 	int parent;
 
-	std::vector<Joint> jointList;
-
 	while (mr.getJoint(id, offset, parent)) {
 		//create Joints with data
 		std::cout << "  id = " << id << std::endl;
 		std::cout << "    parentID = " << parent << std::endl;
-		Joint j;
-		j.id = id;
-		j.offset = offset;
-		j.parent = parent;
+		Joint j(id, offset, parent);
 
-		jointList.push_back(j);
+		skeleton.joints.push_back(j);
 
 		++id;
 	}
 	std::cout << "Number of Joints found: " << id << std::endl;
-	std::cout << "Joint List size: " << jointList.size() << std::endl;
+	std::cout << "Joint List size: " << skeleton.joints.size() << std::endl;
 
+	// If joint.parent == -1, that joint is cannot represent a bone
+	// bone is based off end joint -> 
+
+	skeleton.bones.resize(skeleton.joints.size());
+
+	for (int n = skeleton.joints.size() - 1; n > 0; --n) {
+		// jointList[n];
+		Joint* p = &(skeleton.joints[n]);
+		skeleton.constructBone(*p);
+		//Bone b(p->parent, *p);
+
+		// bones.push_back(b);
+		// (p->parent).addBone(b);
+
+		// std::cout << n << " offset (";
+		// std::cout << p->offset[0] << ", ";
+		// std::cout << p->offset[1] << ", ";
+		// std::cout << p->offset[2] << ")";
+		// std::cout << " to joint " << p->parent << std::endl;
+	}
 }
 
 void Mesh::updateAnimation()
@@ -90,3 +105,18 @@ void Mesh::computeBounds()
 	}
 }
 
+void Skeleton::constructBone(Joint j) {
+	if (j.parent < 0 || bones[j.id] != nullptr) {
+		return;
+	}
+
+	constructBone(joints[j.parent]);
+	bones[j.id] = new Bone(joints[j.parent], j);
+	bones[j.parent]->addChild(bones[j.id]);
+	return;
+}
+
+void Bone::addChild(Bone* child) {
+	children.push_back(child);
+	child->parent = this;
+}

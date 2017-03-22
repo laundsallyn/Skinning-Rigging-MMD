@@ -20,10 +20,13 @@ struct Joint {
 	// FIXME: Implement your Joint data structure.
 	// Note: PMD represents weights on joints, but you need weights on
 	//       bones to calculate the actual animation.
+	Joint() {}
+	Joint(int i, glm::vec3 off, int p) 
+		: id(i), offset(off), parent(p) {}
 	int id;
 	int parent;
 	glm::vec3 offset;
-}typedef Joint;
+} typedef Joint;
 
 struct Bone {
     // Bone data structure
@@ -39,7 +42,10 @@ struct Bone {
         normal /= glm::length(normal);
         bd = glm::normalize(glm::cross(tangent,normal));
         length = glm::length(end.offset);
+        id = e.id;
     }
+
+    void addChild(Bone* child);
 
     Joint start;
     Joint end;
@@ -49,11 +55,18 @@ struct Bone {
     glm::vec3 bd; // Binormal direction
     glm::mat4 translation;
     glm::mat4 rotation;
+    int id;
+    Bone* parent;
+    std::vector<Bone*> children;
 }typedef Bone;
 
 
 struct Skeleton {
 	// FIXME: create skeleton and bone data structures
+	std::vector<Joint> joints;
+	std::vector<Bone*>  bones;
+
+	void constructBone(Joint j);
 };
 
 struct Mesh {
