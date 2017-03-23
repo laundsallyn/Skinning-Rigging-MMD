@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <glm/gtx/io.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/ext.hpp>
 
 #include <vector>
 
@@ -62,6 +63,7 @@ void Mesh::loadpmd(const std::string& fn)
 
 		++id;
 	}
+	mr.getJointWeights(skeleton.weights);
 	std::cout << "Number of Joints found: " << id << std::endl;
 	std::cout << "Joint List size: " << skeleton.joints.size() << std::endl;
 
@@ -72,16 +74,6 @@ void Mesh::loadpmd(const std::string& fn)
 
 	for (int n = skeleton.joints.size() - 1; n > 0; --n) {
 		skeleton.constructBone(skeleton.joints[n]);
-		//Bone b(p->parent, *p);
-
-		// bones.push_back(b);
-		// (p->parent).addBone(b);
-
-		// std::cout << n << " offset (";
-		// std::cout << p->offset[0] << ", ";
-		// std::cout << p->offset[1] << ", ";
-		// std::cout << p->offset[2] << ")";
-		// std::cout << " to joint " << p->parent << std::endl;
 	}
 }
 
@@ -104,13 +96,26 @@ void Mesh::computeBounds()
 }
 
 void Skeleton::constructBone(Joint j) {
-	std::cout << "Skeleton::constructBone: joint.id = " << j.id << std::endl;
+	// std::cout << "Skeleton::constructBone: joint.id = " << j.id << std::endl;
 	if (j.id <= 0 || bones[j.id] != nullptr) {
 		return;
 	}
 
 	constructBone(joints[j.parent]);
-	bones[j.id] = new Bone(joints[j.parent], j);
+	Bone *b = new Bone(joints[j.parent], j);
+	bones[j.id] = b;
 	joints[j.parent].children.push_back(j.id);
+	if (j.parent > 0) {
+		b->parent = bones[j.parent];
+	} else {
+		b->parent = nullptr;
+		// translation and rotation are with respect to world coords
+		Joint p = joints[j.parent];
+		// b->translation = glm::mat4(1.0f);
+		// b->translation *= (glm::vec4(p.offset + j.offset), 0);
+		// p.offset + j.offset == j.position
+		std::cout << "root bone: " << b->id << std::endl;
+		std::cout << glm::to_string(b->translation) << std::endl;
+	}
 	return;
 }
