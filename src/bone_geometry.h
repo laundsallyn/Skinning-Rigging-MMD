@@ -44,13 +44,16 @@ struct Bone {
         bd = glm::normalize(glm::cross(tangent,normal));
         length = glm::length(end.offset);
         id = e.id;
-    }
 
-    void addChild(Bone* child);
+        // R = [tvec nvec bvec]
+        rotation = glm::mat4(glm::mat3(tangent, normal, bd));
+        rotation[3][3] = 1.0f;
+    }
 
     Joint start;
     Joint end;
     float length;
+    float weight;
     glm::vec3 tangent;
     glm::vec3 normal;
     glm::vec3 bd; // Binormal direction
@@ -58,7 +61,6 @@ struct Bone {
     glm::mat4 rotation;
     int id;
     Bone* parent;
-    std::vector<Bone*> children;
 }typedef Bone;
 
 
@@ -66,6 +68,7 @@ struct Skeleton {
 	// FIXME: create skeleton and bone data structures
 	std::vector<Joint> joints;
 	std::vector<Bone*>  bones;
+	std::vector<SparseTuple> weights;
 
 	void constructBone(Joint j);
 };
@@ -87,8 +90,7 @@ struct Mesh {
 	void updateAnimation();
 	int getNumberOfBones() const 
 	{ 
-		return skeleton.bones.size();
-		// FIXME: return number of bones in skeleton
+		return skeleton.bones.size() - 1;
 	}
 	glm::vec3 getCenter() const { return 0.5f * glm::vec3(bounds.min + bounds.max); }
 private:
