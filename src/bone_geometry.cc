@@ -71,9 +71,7 @@ void Mesh::loadpmd(const std::string& fn)
 	skeleton.bones.resize(skeleton.joints.size());
 
 	for (int n = skeleton.joints.size() - 1; n > 0; --n) {
-		// jointList[n];
-		Joint* p = &(skeleton.joints[n]);
-		skeleton.constructBone(*p);
+		skeleton.constructBone(skeleton.joints[n]);
 		//Bone b(p->parent, *p);
 
 		// bones.push_back(b);
@@ -106,17 +104,13 @@ void Mesh::computeBounds()
 }
 
 void Skeleton::constructBone(Joint j) {
-	if (j.parent < 0 || bones[j.id] != nullptr) {
+	std::cout << "Skeleton::constructBone: joint.id = " << j.id << std::endl;
+	if (j.id <= 0 || bones[j.id] != nullptr) {
 		return;
 	}
 
 	constructBone(joints[j.parent]);
 	bones[j.id] = new Bone(joints[j.parent], j);
-	bones[j.parent]->addChild(bones[j.id]);
+	joints[j.parent].children.push_back(j.id);
 	return;
-}
-
-void Bone::addChild(Bone* child) {
-	children.push_back(child);
-	child->parent = this;
 }

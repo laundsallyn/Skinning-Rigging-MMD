@@ -26,6 +26,7 @@ struct Joint {
 	int id;
 	int parent;
 	glm::vec3 offset;
+	std::vector<int> children;
 } typedef Joint;
 
 struct Bone {
