@@ -95,7 +95,8 @@ int main(int argc, char* argv[])
 		mesh_center += mesh.vertices[i];
 	}
 	mesh_center /= mesh.vertices.size();
-
+	LineMesh line_mesh;
+	create_linemesh(line_mesh, mesh.skeleton);
 	/*
 	 * GUI object needs the mesh object for bone manipulation.
 	 */
@@ -103,6 +104,8 @@ int main(int argc, char* argv[])
 
 	glm::vec4 light_position = glm::vec4(0.0f, 100.0f, 0.0f, 1.0f);
 	MatrixPointers mats; // Define MatrixPointers here for lambda to capture
+	
+
 	/*
 	 * In the following we are going to define several lambda functions to bind Uniforms.
 	 * 
@@ -110,6 +113,8 @@ int main(int argc, char* argv[])
 	 *      http://en.cppreference.com/w/cpp/language/lambda
 	 *      http://www.stroustrup.com/C++11FAQ.html#lambda
 	 */
+
+
 	auto matrix_binder = [](int loc, const void* data) {
 		glUniformMatrix4fv(loc, 1, GL_FALSE, (const GLfloat*)data);
 	};
@@ -136,6 +141,7 @@ int main(int argc, char* argv[])
 	auto floor_model_data = [&floor_model_matrix]() -> const void* {
 		return &floor_model_matrix[0][0];
 	}; // This return model matrix for the floor.
+
 	auto std_view_data = [&mats]() -> const void* {
 		return mats.view;
 	};
@@ -165,6 +171,11 @@ int main(int argc, char* argv[])
 	ShaderUniform std_proj = { "projection", matrix_binder, std_proj_data };
 	ShaderUniform std_light = { "light_position", vector_binder, std_light_data };
 	ShaderUniform object_alpha = { "alpha", float_binder, alpha_data };
+	/*---------------LineMesh------------------------*/
+	ShaderUniform line_mesh_model = {"model", bone_matrix_binder, std_model_data};
+
+
+
 	// FIXME: define more ShaderUniforms for RenderPass if you want to use it.
 	//        Otherwise, do whatever you like here
 
@@ -190,6 +201,21 @@ int main(int argc, char* argv[])
 
 	// FIXME: Create the RenderPass objects for bones here.
 	//        Otherwise do whatever you like.
+	RenderDataInput bone_pass_input;
+	bone_pass_input.assign(0,"vertex_position",line_mesh.vertices.data(), line_mesh.vertices.size(),4, GL_FLOAT);
+	RenderPass bone_pass(-1,
+			object_pass_input,
+			{
+				vertex_shader,
+				geometry_shader,
+				fragment_shader
+			},
+			{ std_model, std_view, std_proj,
+			  std_light,
+			  std_camera, object_alpha },
+			{ "fragment_color" }
+			);
+
 
 	RenderDataInput floor_pass_input;
 	floor_pass_input.assign(0, "vertex_position", floor_vertices.data(), floor_vertices.size(), 4, GL_FLOAT);
