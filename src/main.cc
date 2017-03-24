@@ -38,6 +38,10 @@ const char* floor_fragment_shader =
 #include "shaders/floor.frag"
 ;
 
+const char* bones_fragment_shader = 
+#include "shaders/bones.frag"
+;
+
 // FIXME: Add more shaders here.
 
 void ErrorCallback(int error, const char* description) {
@@ -95,8 +99,10 @@ int main(int argc, char* argv[])
 		mesh_center += mesh.vertices[i];
 	}
 	mesh_center /= mesh.vertices.size();
+
 	LineMesh line_mesh;
 	create_linemesh(line_mesh, mesh.skeleton);
+	std::cout<<"-------------"<<mesh.skeleton.bones.size()<<"--------------"<<std::endl;
 	/*
 	 * GUI object needs the mesh object for bone manipulation.
 	 */
@@ -204,11 +210,11 @@ int main(int argc, char* argv[])
 	RenderDataInput bone_pass_input;
 	bone_pass_input.assign(0,"vertex_position",line_mesh.vertices.data(), line_mesh.vertices.size(),4, GL_FLOAT);
 	RenderPass bone_pass(-1,
-			object_pass_input,
+			bone_pass_input,
 			{
 				vertex_shader,
 				geometry_shader,
-				fragment_shader
+				bones_fragment_shader
 			},
 			{ std_model, std_view, std_proj,
 			  std_light,
@@ -257,7 +263,13 @@ int main(int argc, char* argv[])
 #else
 		draw_cylinder = true;
 #endif
+
 		// FIXME: Draw bones first.
+		if(draw_skeleton){
+			bone_pass.setup();
+			CHECK_GL_ERROR(glDrawElements(GL_LINES,line_mesh.vertices.size(), GL_UNSIGNED_INT, 0));
+		}
+
 		// Then draw floor.
 		if (draw_floor) {
 			floor_pass.setup();

@@ -19,7 +19,7 @@ void create_floor(std::vector<glm::vec4>& floor_vertices, std::vector<glm::uvec3
 // nice wireframe.
 
 void create_linemesh(LineMesh& line_mesh, Skeleton skeleton){
-	for(int i = 0; i < skeleton.bones.size(); ++i){
+	for(int i = 1; i < skeleton.bones.size(); ++i){
 		line_mesh.vertices.push_back(glm::vec4(skeleton.bones[i]->start.offset,1));
 		line_mesh.vertices.push_back(glm::vec4(skeleton.bones[i]->end.offset,1));
 	}
