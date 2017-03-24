@@ -54,6 +54,9 @@ struct Bone {
 
     void updateRotation();
     void updateTranslation();
+    glm::mat4 getParentTransMat();
+    glm::mat4 getParentRotatMat();
+    glm::mat4 getWorldCoordMat();
 
     Joint start;
     Joint end;

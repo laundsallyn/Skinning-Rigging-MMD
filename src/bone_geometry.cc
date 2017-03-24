@@ -120,3 +120,30 @@ void Skeleton::constructBone(Joint j) {
 	}
 	return;
 }
+
+glm::mat4 Bone::getParentTransMat() {
+	if (parent == nullptr) {
+		return translation;
+	}
+	else {
+		return parent->getParentTransMat();
+	}
+}
+
+glm::mat4 Bone::getParentRotatMat() {
+	if (parent == nullptr) {
+		return rotation;
+	} else {
+		return parent->getParentRotatMat();
+	}
+}
+
+glm::mat4 Bone::getWorldCoordMat() {
+	if (parent == nullptr) {
+		return translation * rotation; // TODO: reverse order?
+	} else {
+		glm::mat4 m = getParentTransMat() * getParentRotatMat();
+		m = m * (translation * rotation);
+		return m;
+	}
+}
