@@ -34,7 +34,7 @@ struct Bone {
     Bone(Joint s, Joint e){
         start = s;
         end = e;
-        tangent = glm::vec3 (glm::normalize(end.offset));
+        tangent = glm::normalize(end.offset);
         int normalInd = abs(tangent.x) < abs(tangent.y) ? 0 : 1;
         normalInd = abs(tangent[normalInd]) < abs(tangent.z) ? normalInd : 2;
         normal = glm::vec3 (0,0,0);

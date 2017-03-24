@@ -39,6 +39,8 @@ Mesh::~Mesh()
 {
 }
 
+void printMat(glm::mat4 mat);
+
 void Mesh::loadpmd(const std::string& fn)
 {
 	MMDReader mr;
@@ -75,6 +77,45 @@ void Mesh::loadpmd(const std::string& fn)
 	for (int n = skeleton.joints.size() - 1; n > 0; --n) {
 		skeleton.constructBone(skeleton.joints[n]);
 	}
+
+	Bone *x = skeleton.bones[1];
+	Bone *y = skeleton.bones[2];
+
+	std::cout << "-- Joint Offset from Parent --"  << std::endl;
+	std::cout << glm::to_string(skeleton.joints[0].offset) << std::endl;
+	std::cout << glm::to_string(skeleton.joints[1].offset) << std::endl;
+	std::cout << glm::to_string(y->end.offset) << std::endl << std::endl;
+
+	std::cout << "-- Matrices --"  << std::endl;
+	std::cout << "-- Bone 1 --" << std::endl;
+	printMat(x->translation);
+	printMat(x->rotation);
+	std::cout << "-- Bone 2 --" << std::endl;
+	printMat(y->translation);
+	printMat(y->rotation);
+
+	glm::vec4 base(0, 0, 0, 1);
+	glm::vec4 endpoint(x->length, 0, 0, 1);
+
+	std:: cout << "-- World Coord --" << std::endl;
+	std:: cout << "-- Bone 0 Origin --" << std::endl;
+	glm::vec4 result = x->translation * base;
+	std::cout << glm::to_string(result) << std::endl;
+
+	std:: cout << "-- Bone 0 End Point --" << std::endl;
+	result = x->translation * x->rotation * endpoint;
+	std::cout << glm::to_string(result) << std::endl;
+	printMat(x->translation * x->rotation);
+
+	std:: cout << "-- Bone 1 Origin --" << std::endl;
+	endpoint = glm::vec4(y->length, 0, 0, 1);
+	result = (x->translation * x->rotation) * y->translation * base;
+	printMat((x->translation * x->rotation) * y->translation);
+	std::cout << glm::to_string(result) << std::endl;
+
+	std:: cout << "-- Bone 1 End Point --" << std::endl;
+	result = x->translation * x->rotation * y->translation * y->rotation * endpoint;
+	std::cout << glm::to_string(result) << std::endl;
 }
 
 void Mesh::updateAnimation()
@@ -107,16 +148,23 @@ void Skeleton::constructBone(Joint j) {
 	joints[j.parent].children.push_back(j.id);
 	if (j.parent > 0) {
 		b->parent = bones[j.parent];
-		b->translation[0][3] = b->parent->end.offset.x;
-		b->translation[1][3] = b->parent->end.offset.y;
-		b->translation[2][3] = b->parent->end.offset.z;
+		Joint p = joints[j.parent];
+		b->translation[3][0] = p.offset.x;
+		b->translation[3][1] = p.offset.y;
+		b->translation[3][2] = p.offset.z;
+		// if (b->id == 2) {
+		// 	std::cout << glm::to_string(b->translation) << std::endl;
+		// }
 	} else {
 		b->parent = nullptr;
 		// translation and rotation are with respect to world coords
 		Joint p = joints[j.parent];
-		b->translation[0][3] = p.offset.x;
-		b->translation[1][3] = p.offset.y;
-		b->translation[2][3] = p.offset.z;
+		b->translation[3][0] = p.offset.x;
+		b->translation[3][1] = p.offset.y;
+		b->translation[3][2] = p.offset.z;
+		// if (b->id == 1) {
+		// 	std::cout << glm::to_string(b->translation) << std::endl;
+		// }
 	}
 	return;
 }
@@ -142,8 +190,19 @@ glm::mat4 Bone::getWorldCoordMat() {
 	if (parent == nullptr) {
 		return translation * rotation; // TODO: reverse order?
 	} else {
-		glm::mat4 m = getParentTransMat() * getParentRotatMat();
+		glm::mat4 m = parent->getWorldCoordMat(); // getParentTransMat() * getParentRotatMat();
 		m = m * (translation * rotation);
 		return m;
 	}
+}
+
+void printMat(glm::mat4 mat) {
+	std::cout << "glm::mat4" << std::endl;
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			printf("%03.5f ", mat[j][i]);
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
 }
