@@ -267,7 +267,7 @@ int main(int argc, char* argv[])
 		// FIXME: Draw bones first.
 		if(draw_skeleton){
 			bone_pass.setup();
-			CHECK_GL_ERROR(glDrawElements(GL_LINES,line_mesh.vertices.size(), GL_UNSIGNED_INT, 0));
+			// CHECK_GL_ERROR(glDrawElements(GL_LINES,line_mesh.vertices.size(), GL_UNSIGNED_INT, 0));
 		}
 
 		// Then draw floor.
