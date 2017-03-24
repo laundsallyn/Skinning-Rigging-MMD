@@ -107,15 +107,16 @@ void Skeleton::constructBone(Joint j) {
 	joints[j.parent].children.push_back(j.id);
 	if (j.parent > 0) {
 		b->parent = bones[j.parent];
+		b->translation[0][3] = b->parent->end.offset.x;
+		b->translation[1][3] = b->parent->end.offset.y;
+		b->translation[2][3] = b->parent->end.offset.z;
 	} else {
 		b->parent = nullptr;
 		// translation and rotation are with respect to world coords
 		Joint p = joints[j.parent];
-		// b->translation = glm::mat4(1.0f);
-		// b->translation *= (glm::vec4(p.offset + j.offset), 0);
-		// p.offset + j.offset == j.position
-		std::cout << "root bone: " << b->id << std::endl;
-		std::cout << glm::to_string(b->translation) << std::endl;
+		b->translation[0][3] = p.offset.x;
+		b->translation[1][3] = p.offset.y;
+		b->translation[2][3] = p.offset.z;
 	}
 	return;
 }

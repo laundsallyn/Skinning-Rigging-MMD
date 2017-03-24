@@ -48,7 +48,12 @@ struct Bone {
         // R = [tvec nvec bvec]
         rotation = glm::mat4(glm::mat3(tangent, normal, bd));
         rotation[3][3] = 1.0f;
+        // TODO: change translation matrix
+        translation = glm::mat4(1.0f);
     }
+
+    void updateRotation();
+    void updateTranslation();
 
     Joint start;
     Joint end;
