@@ -96,26 +96,37 @@ void Mesh::computeBounds()
 }
 
 void Skeleton::constructBone(Joint j) {
-	// std::cout << "Skeleton::constructBone: joint.id = " << j.id << std::endl;
-	if (j.id <= 0 || bones[j.id] != nullptr) {
-		return;
-	}
+// std::cout << "Skeleton::constructBone: joint.id = " << j.id << std::endl;
+if (j.id <= 0 || bones[j.id] != nullptr) {
+return;
+}
 
-	constructBone(joints[j.parent]);
-	Bone *b = new Bone(joints[j.parent], j);
-	bones[j.id] = b;
-	joints[j.parent].children.push_back(j.id);
-	if (j.parent > 0) {
-		b->parent = bones[j.parent];
+constructBone(joints[j.parent]);
+Bone *b = new Bone(joints[j.parent], j);
+bones[j.id] = b;
+joints[j.parent].children.push_back(j.id);
+if (j.parent > 0) {
+	b->parent = bones[j.parent];
+	b->translation[3][0] = j.offset.x;
+	b->translation[3][1] = j.offset.y;
+	b->translation[3][2] = j.offset.z;
+} else {
+	b->parent = nullptr;
+	// translation and rotation are with respect to world coords
+	Joint p = joints[j.parent];
+	b->translation[3][0] = p.offset.x;
+	b->translation[3][1] = p.offset.y;
+	b->translation[3][2] = p.offset.z;
+}
+return;
+}
+
+
+glm::mat4 Bone::getWorldCoordMat() {
+	if (parent == nullptr) {
+		return translation; // TODO: reverse order?
 	} else {
-		b->parent = nullptr;
-		// translation and rotation are with respect to world coords
-		Joint p = joints[j.parent];
-		// b->translation = glm::mat4(1.0f);
-		// b->translation *= (glm::vec4(p.offset + j.offset), 0);
-		// p.offset + j.offset == j.position
-		std::cout << "root bone: " << b->id << std::endl;
-		std::cout << glm::to_string(b->translation) << std::endl;
+
+		return parent->getWorldCoordMat()* (translation * rotation);
 	}
-	return;
 }

@@ -19,8 +19,21 @@ void create_floor(std::vector<glm::vec4>& floor_vertices, std::vector<glm::uvec3
 // nice wireframe.
 
 void create_linemesh(LineMesh& line_mesh, Skeleton skeleton){
+	int j = 0;
 	for(int i = 1; i < skeleton.bones.size(); ++i){
-		line_mesh.vertices.push_back(glm::vec4(skeleton.bones[i]->start.offset,1));
-		line_mesh.vertices.push_back(glm::vec4(skeleton.bones[i]->end.offset,1));
+		Bone* b = skeleton.bones[i];
+		line_mesh.vertices.push_back(b->getWorldCoordMat() *glm::vec4( 0.0,0.0,0.0,1));
+		line_mesh.vertices.push_back(b->getWorldCoordMat() * b->rotation * glm::vec4(b->end.offset,1));
+		line_mesh.bone_lines.push_back(glm::uvec2(j, j+1));
+		j += 2;
 	}
+}
+
+void create_default(LineMesh& lm){
+	lm.vertices.push_back(glm::vec4(0.0,-1.0,0.0,1));
+	lm.vertices.push_back(glm::vec4(0.0,10.0,0.0,1));
+	lm.bone_lines.push_back(glm::uvec2(0, 1));
+	lm.vertices.push_back(glm::vec4(-5.0,10.0,0.0,1));
+	lm.vertices.push_back(glm::vec4(5.0,10.0,0.0,1));
+	lm.bone_lines.push_back(glm::uvec2(1, 2));
 }

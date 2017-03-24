@@ -61,6 +61,8 @@ struct Bone {
     glm::mat4 rotation;
     int id;
     Bone* parent;
+
+	glm::mat4 getWorldCoordMat();
 }typedef Bone;
 
 
