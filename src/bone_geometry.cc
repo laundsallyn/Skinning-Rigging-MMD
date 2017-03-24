@@ -194,8 +194,8 @@ glm::mat4 Bone::getWorldCoordMat() {
 	if (parent == nullptr) {
 		return translation; // TODO: reverse order?
 	} else {
-
-		return parent->getWorldCoordMat()* (translation * rotation);
+		//currently disabled rotation
+		return parent->getWorldCoordMat()* (translation );
 	}
 }
 

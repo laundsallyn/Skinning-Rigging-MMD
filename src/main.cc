@@ -105,8 +105,8 @@ int main(int argc, char* argv[])
 	mesh_center /= mesh.vertices.size();
 
 	LineMesh line_mesh;
-	create_default(line_mesh);
-	//create_linemesh(line_mesh, mesh.skeleton);
+	// create_default(line_mesh);
+	create_linemesh(line_mesh, mesh.skeleton);
 	// for(int i = 0; i < line_mesh.vertices.size(); ++i){
 	// 	std::cout<<glm::to_string(line_mesh.vertices[i])<<std::endl;
 	// }
