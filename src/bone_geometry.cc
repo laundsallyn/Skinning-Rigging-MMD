@@ -81,6 +81,9 @@ void Mesh::loadpmd(const std::string& fn)
 	Bone *x = skeleton.bones[1];
 	Bone *y = skeleton.bones[2];
 
+	std::cout << glm::to_string(y->tangent) << std::endl;
+	printMat(y->rotation);
+
 	std::cout << "-- Joint Offset from Parent --"  << std::endl;
 	std::cout << glm::to_string(skeleton.joints[0].offset) << std::endl;
 	std::cout << glm::to_string(skeleton.joints[1].offset) << std::endl;
@@ -110,7 +113,7 @@ void Mesh::loadpmd(const std::string& fn)
 	std:: cout << "-- Bone 1 Origin --" << std::endl;
 	endpoint = glm::vec4(y->length, 0, 0, 1);
 	result = (x->translation * x->rotation) * y->translation * base;
-	printMat((x->translation * x->rotation) * y->translation);
+	// printMat((x->translation * x->rotation) * y->translation);
 	std::cout << glm::to_string(result) << std::endl;
 
 	std:: cout << "-- Bone 1 End Point --" << std::endl;
@@ -137,7 +140,7 @@ void Mesh::computeBounds()
 }
 
 void Skeleton::constructBone(Joint j) {
-	// std::cout << "Skeleton::constructBone: joint.id = " << j.id << std::endl;
+// std::cout << "Skeleton::constructBone: joint.id = " << j.id << std::endl;
 	if (j.id <= 0 || bones[j.id] != nullptr) {
 		return;
 	}
@@ -155,6 +158,7 @@ void Skeleton::constructBone(Joint j) {
 		// if (b->id == 2) {
 		// 	std::cout << glm::to_string(b->translation) << std::endl;
 		// }
+		// b->rotation = b->parent->rotation * b->rotation;
 	} else {
 		b->parent = nullptr;
 		// translation and rotation are with respect to world coords
@@ -188,21 +192,17 @@ glm::mat4 Bone::getParentRotatMat() {
 
 glm::mat4 Bone::getWorldCoordMat() {
 	if (parent == nullptr) {
-		return translation * rotation; // TODO: reverse order?
+		return translation; // TODO: reverse order?
 	} else {
-		glm::mat4 m = parent->getWorldCoordMat(); // getParentTransMat() * getParentRotatMat();
-		m = m * (translation * rotation);
-		return m;
+
+		return parent->getWorldCoordMat()* (translation * rotation);
 	}
 }
 
 void printMat(glm::mat4 mat) {
 	std::cout << "glm::mat4" << std::endl;
 	for (int i = 0; i < 4; ++i) {
-		for (int j = 0; j < 4; ++j) {
-			printf("%03.5f ", mat[j][i]);
-		}
-		std::cout << std::endl;
+		std::cout << glm::to_string(glm::row(mat, i)) << std::endl;
 	}
 	std::cout << std::endl;
 }

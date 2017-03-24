@@ -12,7 +12,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
+#include "glm/ext.hpp" 
 #include <glm/gtx/component_wise.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -36,6 +36,14 @@ const char* fragment_shader =
 
 const char* floor_fragment_shader =
 #include "shaders/floor.frag"
+;
+
+const char* bones_fragment_shader = 
+#include "shaders/bones.frag"
+;
+
+const char* bones_geometry_shader = 
+#include "shaders/bones.geom"
 ;
 
 // FIXME: Add more shaders here.
@@ -96,6 +104,12 @@ int main(int argc, char* argv[])
 	}
 	mesh_center /= mesh.vertices.size();
 
+	LineMesh line_mesh;
+	create_default(line_mesh);
+	//create_linemesh(line_mesh, mesh.skeleton);
+	// for(int i = 0; i < line_mesh.vertices.size(); ++i){
+	// 	std::cout<<glm::to_string(line_mesh.vertices[i])<<std::endl;
+	// }
 	/*
 	 * GUI object needs the mesh object for bone manipulation.
 	 */
@@ -103,6 +117,8 @@ int main(int argc, char* argv[])
 
 	glm::vec4 light_position = glm::vec4(0.0f, 100.0f, 0.0f, 1.0f);
 	MatrixPointers mats; // Define MatrixPointers here for lambda to capture
+	
+
 	/*
 	 * In the following we are going to define several lambda functions to bind Uniforms.
 	 * 
@@ -110,13 +126,15 @@ int main(int argc, char* argv[])
 	 *      http://en.cppreference.com/w/cpp/language/lambda
 	 *      http://www.stroustrup.com/C++11FAQ.html#lambda
 	 */
+
+
 	auto matrix_binder = [](int loc, const void* data) {
 		glUniformMatrix4fv(loc, 1, GL_FALSE, (const GLfloat*)data);
 	};
-	auto bone_matrix_binder = [&mesh](int loc, const void* data) {
-		auto nelem = mesh.getNumberOfBones();
-		glUniformMatrix4fv(loc, nelem, GL_FALSE, (const GLfloat*)data);
-	};
+	// auto bone_matrix_binder = [&mesh](int loc, const void* data) {
+	// 	auto nelem = mesh.getNumberOfBones();
+	// 	glUniformMatrix4fv(loc, nelem, GL_FALSE, (const GLfloat*)data);
+	// };
 	auto vector_binder = [](int loc, const void* data) {
 		glUniform4fv(loc, 1, (const GLfloat*)data);
 	};
@@ -132,10 +150,17 @@ int main(int argc, char* argv[])
 	auto std_model_data = [&mats]() -> const void* {
 		return mats.model;
 	}; // This returns point to model matrix
+	
+	glm::mat4 bone_model_matrix = glm::mat4(1.0f);
+	auto bone_model_data = [&bone_model_matrix]() -> const void* {
+		return &bone_model_matrix[0][0];
+	}; 
+
 	glm::mat4 floor_model_matrix = glm::mat4(1.0f);
 	auto floor_model_data = [&floor_model_matrix]() -> const void* {
 		return &floor_model_matrix[0][0];
 	}; // This return model matrix for the floor.
+
 	auto std_view_data = [&mats]() -> const void* {
 		return mats.view;
 	};
@@ -156,6 +181,7 @@ int main(int argc, char* argv[])
 		else
 			return &non_transparet;
 	};
+
 	// FIXME: add more lambdas for data_source if you want to use RenderPass.
 	//        Otherwise, do whatever you like here
 	ShaderUniform std_model = { "model", matrix_binder, std_model_data };
@@ -165,6 +191,11 @@ int main(int argc, char* argv[])
 	ShaderUniform std_proj = { "projection", matrix_binder, std_proj_data };
 	ShaderUniform std_light = { "light_position", vector_binder, std_light_data };
 	ShaderUniform object_alpha = { "alpha", float_binder, alpha_data };
+	/*---------------LineMesh------------------------*/
+	ShaderUniform line_mesh_model = {"model", matrix_binder, bone_model_data};
+
+
+
 	// FIXME: define more ShaderUniforms for RenderPass if you want to use it.
 	//        Otherwise, do whatever you like here
 
@@ -190,6 +221,21 @@ int main(int argc, char* argv[])
 
 	// FIXME: Create the RenderPass objects for bones here.
 	//        Otherwise do whatever you like.
+	RenderDataInput bone_pass_input;
+	bone_pass_input.assign(0,"vertex_position",line_mesh.vertices.data(), line_mesh.vertices.size(),4, GL_FLOAT);
+	bone_pass_input.assign_index(line_mesh.bone_lines.data(), line_mesh.bone_lines.size(),2);
+	RenderPass bone_pass(-1,
+			bone_pass_input,
+			{
+				vertex_shader,
+				bones_geometry_shader,
+				bones_fragment_shader
+			},
+			{ line_mesh_model, std_view, std_proj,
+			  std_light},
+			{ "fragment_color" }
+			);
+
 
 	RenderDataInput floor_pass_input;
 	floor_pass_input.assign(0, "vertex_position", floor_vertices.data(), floor_vertices.size(), 4, GL_FLOAT);
@@ -231,7 +277,13 @@ int main(int argc, char* argv[])
 #else
 		draw_cylinder = true;
 #endif
+
 		// FIXME: Draw bones first.
+		if(draw_skeleton){
+			bone_pass.setup();
+			CHECK_GL_ERROR(glDrawElements(GL_LINES, line_mesh.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
+		}
+
 		// Then draw floor.
 		if (draw_floor) {
 			floor_pass.setup();

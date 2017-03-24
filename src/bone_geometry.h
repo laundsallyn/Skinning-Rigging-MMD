@@ -98,7 +98,6 @@ struct Mesh {
 	void updateAnimation();
 	int getNumberOfBones() const 
 	{ 
-		// number of joints minus 1?
 		return skeleton.bones.size() - 1;
 	}
 	glm::vec3 getCenter() const { return 0.5f * glm::vec3(bounds.min + bounds.max); }
