@@ -162,7 +162,7 @@ void Skeleton::constructBone(Joint j) {
 		b->translation[3][1] = p.offset.y;
 		b->translation[3][2] = p.offset.z;
 
-		b->rotation = glm::mat4(1.0f);
+		// b->rotation = glm::mat4(1.0f);
 	}
 	return;
 }
