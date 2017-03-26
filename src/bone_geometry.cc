@@ -57,8 +57,8 @@ void Mesh::loadpmd(const std::string& fn)
 
 	while (mr.getJoint(id, offset, parent)) {
 		//create Joints with data
-		std::cout << "  id = " << id << std::endl;
-		std::cout << "    parentID = " << parent << std::endl;
+		// std::cout << "  id = " << id << std::endl;
+		// std::cout << "    parentID = " << parent << std::endl;
 		Joint j(id, offset, parent);
 
 		skeleton.joints.push_back(j);
@@ -81,12 +81,10 @@ void Mesh::loadpmd(const std::string& fn)
 	Bone *x = skeleton.bones[1];
 	Bone *y = skeleton.bones[2];
 
-	std::cout << glm::to_string(y->tangent) << std::endl;
-	printMat(y->rotation);
-
 	std::cout << "-- Joint Offset from Parent --"  << std::endl;
-	std::cout << glm::to_string(skeleton.joints[0].offset) << std::endl;
-	std::cout << glm::to_string(skeleton.joints[1].offset) << std::endl;
+	std::cout << glm::to_string(x->start.offset) << std::endl;
+	std::cout << glm::to_string(x->end.offset) << std::endl;
+	std::cout << glm::to_string(y->start.offset) << std::endl;
 	std::cout << glm::to_string(y->end.offset) << std::endl << std::endl;
 
 	std::cout << "-- Matrices --"  << std::endl;
@@ -155,9 +153,6 @@ void Skeleton::constructBone(Joint j) {
 		b->translation[3][0] = p.offset.x;
 		b->translation[3][1] = p.offset.y;
 		b->translation[3][2] = p.offset.z;
-		// if (b->id == 2) {
-		// 	std::cout << glm::to_string(b->translation) << std::endl;
-		// }
 		// b->rotation = b->parent->rotation * b->rotation;
 	} else {
 		b->parent = nullptr;
@@ -166,28 +161,10 @@ void Skeleton::constructBone(Joint j) {
 		b->translation[3][0] = p.offset.x;
 		b->translation[3][1] = p.offset.y;
 		b->translation[3][2] = p.offset.z;
-		// if (b->id == 1) {
-		// 	std::cout << glm::to_string(b->translation) << std::endl;
-		// }
+
+		b->rotation = glm::mat4(1.0f);
 	}
 	return;
-}
-
-glm::mat4 Bone::getParentTransMat() {
-	if (parent == nullptr) {
-		return translation;
-	}
-	else {
-		return parent->getParentTransMat();
-	}
-}
-
-glm::mat4 Bone::getParentRotatMat() {
-	if (parent == nullptr) {
-		return rotation;
-	} else {
-		return parent->getParentRotatMat();
-	}
 }
 
 glm::mat4 Bone::getWorldCoordMat() {
@@ -195,7 +172,7 @@ glm::mat4 Bone::getWorldCoordMat() {
 		return translation; // TODO: reverse order?
 	} else {
 		//currently disabled rotation
-		return parent->getWorldCoordMat()* (translation );
+		return parent->getWorldCoordMat() * (translation);
 	}
 }
 
