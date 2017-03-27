@@ -42,8 +42,12 @@ const char* bones_fragment_shader =
 #include "shaders/bones.frag"
 ;
 
-const char* bones_geometry_shader = 
-#include "shaders/bones.geom"
+const char* line_mesh_geometry_shader = 
+#include "shaders/line_mesh.geom"
+;
+
+const char* cylinder_fragment_shader = 
+#include "shaders/cylinder.frag"
 ;
 
 // FIXME: Add more shaders here.
@@ -107,6 +111,8 @@ int main(int argc, char* argv[])
 	LineMesh line_mesh;
 	// create_default(line_mesh);
 	create_linemesh(line_mesh, mesh.skeleton);
+	LineMesh cylinder;
+	create_cylinder(cylinder, mesh.skeleton, 1);
 	// for(int i = 0; i < line_mesh.vertices.size(); ++i){
 	// 	std::cout<<glm::to_string(line_mesh.vertices[i])<<std::endl;
 	// }
@@ -155,6 +161,10 @@ int main(int argc, char* argv[])
 	auto bone_model_data = [&bone_model_matrix]() -> const void* {
 		return &bone_model_matrix[0][0];
 	}; 
+	glm::mat4 cylinder_model_matrix = glm::mat4(1.0f);
+	auto cylinder_model_data = [&cylinder_model_matrix]() -> const void* {
+		return &cylinder_model_matrix[0][0];
+	}; 
 
 	glm::mat4 floor_model_matrix = glm::mat4(1.0f);
 	auto floor_model_data = [&floor_model_matrix]() -> const void* {
@@ -193,8 +203,7 @@ int main(int argc, char* argv[])
 	ShaderUniform object_alpha = { "alpha", float_binder, alpha_data };
 	/*---------------LineMesh------------------------*/
 	ShaderUniform line_mesh_model = {"model", matrix_binder, bone_model_data};
-
-
+	ShaderUniform cylinder_mesh_model = {"model", matrix_binder, cylinder_model_data};
 
 	// FIXME: define more ShaderUniforms for RenderPass if you want to use it.
 	//        Otherwise, do whatever you like here
@@ -228,13 +237,29 @@ int main(int argc, char* argv[])
 			bone_pass_input,
 			{
 				vertex_shader,
-				bones_geometry_shader,
+				line_mesh_geometry_shader,
 				bones_fragment_shader
 			},
 			{ line_mesh_model, std_view, std_proj,
 			  std_light},
 			{ "fragment_color" }
 			);
+
+	RenderDataInput cylinder_pass_input;
+	cylinder_pass_input.assign(0,"vertex_position",cylinder.vertices.data(), cylinder.vertices.size(),4, GL_FLOAT);
+	cylinder_pass_input.assign_index(cylinder.bone_lines.data(), cylinder.bone_lines.size(),2);
+	RenderPass cylinder_pass(-1,
+			cylinder_pass_input,
+			{
+				vertex_shader,
+				line_mesh_geometry_shader,
+				cylinder_fragment_shader
+			},
+			{ cylinder_mesh_model, std_view, std_proj,
+			  std_light},
+			{ "fragment_color" }
+			);
+
 
 
 	RenderDataInput floor_pass_input;
@@ -282,6 +307,11 @@ int main(int argc, char* argv[])
 		if(draw_skeleton){
 			bone_pass.setup();
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, line_mesh.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
+		}
+		if(true){
+			cylinder_pass.setup();
+			std::cout<<"lines.size() = " << cylinder.bone_lines.size()<<std::endl;
+			CHECK_GL_ERROR(glDrawElements(GL_LINES, cylinder.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
 		}
 
 		// Then draw floor.

@@ -1,6 +1,8 @@
 #include "procedure_geometry.h"
 #include "bone_geometry.h"
 #include "config.h"
+#include <glm/gtx/transform.hpp>
+#include <iostream>
 
 void create_floor(std::vector<glm::vec4>& floor_vertices, std::vector<glm::uvec3>& floor_faces)
 {
@@ -19,13 +21,13 @@ void create_floor(std::vector<glm::vec4>& floor_vertices, std::vector<glm::uvec3
 // nice wireframe.
 
 void create_linemesh(LineMesh& line_mesh, Skeleton skeleton){
-	int j = 0;
+
 	for(int i = 1; i < skeleton.bones.size(); ++i){
 		Bone* b = skeleton.bones[i];
 		line_mesh.vertices.push_back(b->getWorldCoordMat() * glm::vec4( 0.0,0.0,0.0,1));
 		line_mesh.vertices.push_back(b->getWorldCoordMat() * b->rotation * glm::vec4(b->length, 0, 0,1));
-		line_mesh.bone_lines.push_back(glm::uvec2(j, j+1));
-		j += 2;
+		line_mesh.bone_lines.push_back(glm::uvec2(line_mesh.currentIndex, line_mesh.currentIndex+1));
+		line_mesh.currentIndex+= 2;
 	}
 }
 
@@ -39,4 +41,31 @@ void create_default(LineMesh& lm){
 	lm.vertices.push_back(glm::vec4( 0.0, 0.0, 0.0,1));
 	lm.vertices.push_back(glm::vec4( 0.0, 0.0,10.0,1));
 	lm.bone_lines.push_back(glm::uvec2(4, 5));
+}
+
+void create_cylinder(LineMesh& lm, Skeleton sk, int index){
+	Bone* b = sk.bones[index];
+	glm::vec4 start = b->getWorldCoordMat() * glm::vec4(0.0,0.0,0.0,1.0);
+	glm::vec4 end = b->getWorldCoordMat() * b->rotation * glm::vec4(b->length, 0, 0,1);
+	glm::vec3 t = b->tangent;
+	glm::vec3 offset = b->bd;
+	offset.x /=8.0; offset.y/=8.0; offset.z /= 8.0;
+	float deg = 0.0;
+	int lastS = -1; int lastE = -1;
+	while(deg < 360){
+		start =  glm::rotate(deg = deg + 15, t) * start;
+		end = glm::rotate(deg, t) * end;
+		lm.vertices.push_back(start);
+		lm.vertices.push_back(end);
+		lm.bone_lines.push_back(glm::uvec2(lm.currentIndex,lm.currentIndex+1));
+		if(lastS > -1){
+			lm.bone_lines.push_back(glm::uvec2(lastS,lm.currentIndex));
+			lm.bone_lines.push_back(glm::uvec2(lastE,lm.currentIndex+1));
+
+		}
+		lastS = lm.currentIndex;
+		lastE = lm.currentIndex + 1;
+		lm.currentIndex += 2;
+
+	}
 }
