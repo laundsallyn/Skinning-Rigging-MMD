@@ -15,7 +15,60 @@ namespace {
 			float radius, float height, float* t)
 	{
 		//FIXME perform proper ray-cylinder collision detection
-		return true;
+		glm::vec3 base(0, 0, 0); // base of cylinder
+		glm::vec3 up(0, 1, 0);   // direction of cylinder from base
+		bool earlyExit;
+		bool capIntersect;
+		bool bodyIntersect;
+		static const float ray_epsilon = 0.00000001;
+
+		if (direction[1] == 0.0 && (origin[1] > height || origin[1] < 0.0)) {
+			// ray parallel to caps, and camera
+			// position is above/below cylinder
+			return false;
+		}
+
+		// body intersection, only checking this
+		float px = origin[0];
+		float pz = origin[2];
+		float dx = direction[0];
+		float dz = direction[2];
+
+		float a = dx*dx + dz*dz;
+		float b = 2.0*(px*dx + pz*dz);
+		float c = px*px + pz*pz - radius;
+		if (0.0 == a) {
+			return false;
+		}
+
+		float discriminant = b*b - 4.0*a*c;
+		if (discriminant < 0.0) {
+			// imaginary?
+			return false;
+		}
+
+		discriminant = sqrt(discriminant);
+		float t2 = (-b + discriminant)/ (2.0 * a);
+		if (t2 <= ray_epsilon) {
+			return false;
+		}
+		float t1 = (-b - discriminant)/ (2.0 * a);
+
+		glm::vec3 p = origin + (t1 * direction);
+		if (t1 > ray_epsilon) {
+			
+			float y = p[1];
+			if (y >= 0.0 && y <= height) {
+				*t = t1;
+				return true;
+			}
+		}
+
+		// p = origin + (t2 * direction);
+
+		
+
+		return false;
 	}
 }
 
@@ -111,6 +164,20 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 
 	// FIXME: highlight bones that have been moused over
 	current_bone_ = -1;
+	for (int n = 1; n < mesh_->getNumberOfBones(); ++n) {
+		// turn camera and camera direction into bone's coordinates
+		float t;
+		glm::vec3 eyeToBoneCoord = mesh_->skeleton.bones[n]->getCoordSys() * eye_;
+		if (IntersectCylinder(eye_, center_ - eye_, 0.5, 1, &t)) {
+			if (setCurrentBone(n)) {
+				break;
+			} else {
+				std::cout << "GUI BUG: attempted to set bone, but failure?" << std::endl;
+			}
+		}
+	}
+	std::cout << "Current bone: " << getCurrentBone() << std::endl;
+	
 }
 
 void GUI::mouseButtonCallback(int button, int action, int mods)

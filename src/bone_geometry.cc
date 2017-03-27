@@ -80,43 +80,28 @@ void Mesh::loadpmd(const std::string& fn)
 
 	Bone *x = skeleton.bones[1];
 	Bone *y = skeleton.bones[2];
+	Bone *z = skeleton.bones[3];
 
-	std::cout << "-- Joint Offset from Parent --"  << std::endl;
-	std::cout << glm::to_string(x->start.offset) << std::endl;
-	std::cout << glm::to_string(x->end.offset) << std::endl;
-	std::cout << glm::to_string(y->start.offset) << std::endl;
-	std::cout << glm::to_string(y->end.offset) << std::endl << std::endl;
-
-	std::cout << "-- Matrices --"  << std::endl;
-	std::cout << "-- Bone 1 --" << std::endl;
+	std::cout << "---- Bone 1 Matrices ----" << std::endl;
 	printMat(x->translation);
 	printMat(x->rotation);
-	std::cout << "-- Bone 2 --" << std::endl;
+	printMat(x->getCoordSys());
+	std::cout << "Bone " << x->id << " start: " << glm::to_string(x->getWorldCoordStartPoint()) << std::endl;
+	std::cout << "Bone " << x->id << " end: " << glm::to_string(x->getWorldCoordEndPoint()) << std::endl;
+
+	std::cout << "---- Bone 2 Matrices ----" << std::endl;
 	printMat(y->translation);
 	printMat(y->rotation);
+	printMat(y->getCoordSys());
+	std::cout << "Bone " << y->id << " start: " << glm::to_string(y->getWorldCoordStartPoint()) << std::endl;
+	std::cout << "Bone " << y->id << " end: " << glm::to_string(y->getWorldCoordEndPoint()) << std::endl;
 
-	glm::vec4 base(0, 0, 0, 1);
-	glm::vec4 endpoint(x->length, 0, 0, 1);
-
-	std:: cout << "-- World Coord --" << std::endl;
-	std:: cout << "-- Bone 0 Origin --" << std::endl;
-	glm::vec4 result = x->translation * base;
-	std::cout << glm::to_string(result) << std::endl;
-
-	std:: cout << "-- Bone 0 End Point --" << std::endl;
-	result = x->translation * x->rotation * endpoint;
-	std::cout << glm::to_string(result) << std::endl;
-	printMat(x->translation * x->rotation);
-
-	std:: cout << "-- Bone 1 Origin --" << std::endl;
-	endpoint = glm::vec4(y->length, 0, 0, 1);
-	result = (x->translation * x->rotation) * y->translation * base;
-	// printMat((x->translation * x->rotation) * y->translation);
-	std::cout << glm::to_string(result) << std::endl;
-
-	std:: cout << "-- Bone 1 End Point --" << std::endl;
-	result = x->translation * x->rotation * y->translation * y->rotation * endpoint;
-	std::cout << glm::to_string(result) << std::endl;
+	std::cout << "---- Bone 3 Matrices ----" << std::endl;
+	printMat(z->translation);
+	printMat(z->rotation);
+	printMat(z->getCoordSys());
+	std::cout << "Bone " << z->id << " start: " << glm::to_string(z->getWorldCoordStartPoint()) << std::endl;
+	std::cout << "Bone " << z->id << " end: " << glm::to_string(z->getWorldCoordEndPoint()) << std::endl;
 }
 
 void Mesh::updateAnimation()
@@ -162,18 +147,47 @@ void Skeleton::constructBone(Joint j) {
 		b->translation[3][1] = p.offset.y;
 		b->translation[3][2] = p.offset.z;
 
-		b->rotation = glm::mat4(1.0f);
+		// b->rotation = glm::mat4(1.0f);
 	}
 	return;
 }
 
-glm::mat4 Bone::getWorldCoordMat() {
+/*
+ * For this bone, returns T*R of parent up to,
+ * and including, this bone
+ * For example, For Bone1 (no parent)
+ *     returns T1*R1
+ * For Bone3 (1<-2<-3)
+       reutrn T1*R1*T2*R2*T3*R3
+ */
+glm::mat4 Bone::getCoordSys() {
+
+	// TODO: reenable rotation
 	if (parent == nullptr) {
-		return translation; // TODO: reverse order?
+		return translation;
 	} else {
-		//currently disabled rotation
-		return parent->getWorldCoordMat() * (translation);
+		return parent->getCoordSys() * translation;
 	}
+}
+
+glm::vec4 Bone::getWorldCoordStartPoint() {
+	glm::vec4 coord = glm::vec4(0, 0, 0, 1);
+	if (parent == nullptr) {
+		coord = translation * coord;
+	} else {
+		coord = parent->getCoordSys() * translation * coord;
+	}
+	return coord;
+}
+
+glm::vec4 Bone::getWorldCoordEndPoint() {
+	glm::vec4 coord = glm::vec4(length, 0, 0, 1);
+	if (parent == nullptr) {
+		coord = translation * rotation * coord;
+	} else {
+		coord = parent->getCoordSys() * translation * rotation * coord;
+	}
+	return coord;
 }
 
 void printMat(glm::mat4 mat) {

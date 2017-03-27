@@ -51,8 +51,12 @@ struct Bone {
         // TODO: change translation matrix
         translation = glm::mat4(1.0f);
     }
-    
-    glm::mat4 getWorldCoordMat();
+
+    glm::vec4 getWorldCoordStartPoint();
+    glm::vec4 getWorldCoordEndPoint();
+    glm::mat4 getCoordSys();
+    glm::mat4 getWorldRotation(); //R0 R1 R4 R7
+    glm::mat4 getWorldTRMat();   //T0R0 T1R1 T4R4 T7R7
 
     Joint start;
     Joint end;
