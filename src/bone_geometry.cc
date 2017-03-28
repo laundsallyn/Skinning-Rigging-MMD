@@ -77,46 +77,6 @@ void Mesh::loadpmd(const std::string& fn)
 	for (int n = skeleton.joints.size() - 1; n > 0; --n) {
 		skeleton.constructBone(skeleton.joints[n]);
 	}
-
-	Bone *x = skeleton.bones[1];
-	Bone *y = skeleton.bones[2];
-
-	std::cout << "-- Joint Offset from Parent --"  << std::endl;
-	std::cout << glm::to_string(x->start.offset) << std::endl;
-	std::cout << glm::to_string(x->end.offset) << std::endl;
-	std::cout << glm::to_string(y->start.offset) << std::endl;
-	std::cout << glm::to_string(y->end.offset) << std::endl << std::endl;
-
-	std::cout << "-- Matrices --"  << std::endl;
-	std::cout << "-- Bone 1 --" << std::endl;
-	printMat(x->translation);
-	printMat(x->rotation);
-	std::cout << "-- Bone 2 --" << std::endl;
-	printMat(y->translation);
-	printMat(y->rotation);
-
-	glm::vec4 base(0, 0, 0, 1);
-	glm::vec4 endpoint(x->length, 0, 0, 1);
-
-	std:: cout << "-- World Coord --" << std::endl;
-	std:: cout << "-- Bone 0 Origin --" << std::endl;
-	glm::vec4 result = x->translation * base;
-	std::cout << glm::to_string(result) << std::endl;
-
-	std:: cout << "-- Bone 0 End Point --" << std::endl;
-	result = x->translation * x->rotation * endpoint;
-	std::cout << glm::to_string(result) << std::endl;
-	printMat(x->translation * x->rotation);
-
-	std:: cout << "-- Bone 1 Origin --" << std::endl;
-	endpoint = glm::vec4(y->length, 0, 0, 1);
-	result = (x->translation * x->rotation) * y->translation * base;
-	// printMat((x->translation * x->rotation) * y->translation);
-	std::cout << glm::to_string(result) << std::endl;
-
-	std:: cout << "-- Bone 1 End Point --" << std::endl;
-	result = x->translation * x->rotation * y->translation * y->rotation * endpoint;
-	std::cout << glm::to_string(result) << std::endl;
 }
 
 void Mesh::updateAnimation()

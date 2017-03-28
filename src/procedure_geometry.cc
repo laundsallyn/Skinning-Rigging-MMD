@@ -52,9 +52,12 @@ void create_cylinder(LineMesh& lm, Skeleton sk, int index){
 	offset.x /=8.0; offset.y/=8.0; offset.z /= 8.0;
 	float deg = 0.0;
 	int lastS = -1; int lastE = -1;
-	while(deg < 360){
-		start =  glm::rotate(deg = deg + 15, t) * start;
-		end = glm::rotate(deg, t) * end;
+	start -= glm::vec4(offset,0);
+	end -= glm::vec4(offset,0);
+	while(deg <= 360){
+		float rad = glm::radians(30.0);
+		start = glm::rotate(rad, t) * start;
+		end = glm::rotate(rad, t) * end;
 		lm.vertices.push_back(start);
 		lm.vertices.push_back(end);
 		lm.bone_lines.push_back(glm::uvec2(lm.currentIndex,lm.currentIndex+1));
@@ -65,6 +68,7 @@ void create_cylinder(LineMesh& lm, Skeleton sk, int index){
 		}
 		lastS = lm.currentIndex;
 		lastE = lm.currentIndex + 1;
+		 deg += 30;	
 		lm.currentIndex += 2;
 
 	}
