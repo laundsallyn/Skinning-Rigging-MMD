@@ -89,6 +89,12 @@ public:
 	std::vector <glm::uvec2> bone_lines;
 	std::vector<glm::vec4> color;
 	int currentIndex = 0;
+
+	void clear(){
+		vertices.clear();
+		bone_lines.clear();
+		color.clear();
+	}
 };
 
 struct Mesh {

@@ -344,6 +344,9 @@ int main(int argc, char* argv[])
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, mesh.cylinder.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, coordinate.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
 			last_bone = current_bone;
+			mesh.cylinder.clear();
+			mesh.coordinate.clear();
+
 		}
 
 		// Then draw floor.
