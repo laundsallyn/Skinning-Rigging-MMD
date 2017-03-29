@@ -83,6 +83,14 @@ struct Skeleton {
 	void constructBone(Joint j);
 };
 
+class LineMesh{
+public:
+	std::vector<glm::vec4> vertices;
+	std::vector <glm::uvec2> bone_lines;
+	std::vector<glm::vec4> color;
+	int currentIndex = 0;
+};
+
 struct Mesh {
 	Mesh();
 	~Mesh();
@@ -95,6 +103,8 @@ struct Mesh {
 	std::vector<Material> materials;
 	BoundingBox bounds;
 	Skeleton skeleton;
+	LineMesh cylinder;
+	LineMesh coordinate;
 
 	void loadpmd(const std::string& fn);
 	void updateAnimation();

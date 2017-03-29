@@ -237,15 +237,18 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 		dir = b->getWorldCoordMat() * dir;
 		
 		if (IntersectCylinder(glm::vec3(origin), glm::vec3(dir), 0.5, b->length, &t)) {
+			if (getCurrentBone() == n) {
+				break;
+			}
 			if (setCurrentBone(n)) {
-				std::cout << "Current Bone: " << n << std::endl;
+				create_cylinder(mesh_->cylinder, mesh_->skeleton, n);
 				break;
 			} else {
 				std::cout << "GUI BUG: attempted to set bone, but failure?" << std::endl;
 			}
 		}
 	}
-	// std::cout << "Current bone: " << getCurrentBone() << std::endl;
+	std::cout << "Current bone: " << getCurrentBone() << std::endl;
 	
 }
 

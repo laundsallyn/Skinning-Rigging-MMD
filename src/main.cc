@@ -117,8 +117,8 @@ int main(int argc, char* argv[])
 	create_linemesh(line_mesh, mesh.skeleton);
 	LineMesh cylinder;
 	LineMesh coordinate;
-	create_cylinder(cylinder, mesh.skeleton, 1);
-	create_coordinate(coordinate,mesh.skeleton,1);
+	// create_cylinder(mesh.cylinder, mesh.skeleton, 1);
+	// create_coordinate(coordinate,mesh.skeleton,1);
 	// for(int i = 0; i < line_mesh.vertices.size(); ++i){
 	// 	std::cout<<glm::to_string(line_mesh.vertices[i])<<std::endl;
 	// }
@@ -257,8 +257,8 @@ int main(int argc, char* argv[])
 			);
 
 	RenderDataInput cylinder_pass_input;
-	cylinder_pass_input.assign(0,"vertex_position",cylinder.vertices.data(), cylinder.vertices.size(),4, GL_FLOAT);
-	cylinder_pass_input.assign_index(cylinder.bone_lines.data(), cylinder.bone_lines.size(),2);
+	cylinder_pass_input.assign(0,"vertex_position",mesh.cylinder.vertices.data(), mesh.cylinder.vertices.size(),4, GL_FLOAT);
+	cylinder_pass_input.assign_index(mesh.cylinder.bone_lines.data(), mesh.cylinder.bone_lines.size(),2);
 	RenderPass cylinder_pass(-1,
 			cylinder_pass_input,
 			{
@@ -336,7 +336,7 @@ int main(int argc, char* argv[])
 		}
 		if(draw_cylinder){
 			cylinder_pass.setup();
-			CHECK_GL_ERROR(glDrawElements(GL_LINES, cylinder.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
+			CHECK_GL_ERROR(glDrawElements(GL_LINES, mesh.cylinder.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
 			coordinate_pass.setup();
 
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, coordinate.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
