@@ -7,17 +7,18 @@ uniform mat4 view;
 uniform vec4 light_position;
 in vec4 vs_light_direction[];
 in vec4 vs_camera_direction[];
+in vec4 vs_color[];
+out vec4 frag_color;
 out vec4 position;
 
 
 void main() {
 	int n = 0;
+	frag_color = vs_color[1];
 
 	position = gl_in[1].gl_Position;
 	for (n = 0; n < gl_in.length(); n++) {
-
 		gl_Position = projection * view * model * gl_in[n].gl_Position;
-
 		EmitVertex();
 	}
 	EndPrimitive();

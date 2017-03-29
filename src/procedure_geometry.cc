@@ -79,16 +79,20 @@ void create_cylinder(LineMesh& lm, Skeleton sk, int index){
 
 void create_coordinate(LineMesh& lm, Skeleton sk, int index){
 		Bone* b = sk.bones[index];
+		glm::mat4 scale = glm::mat4(glm::vec4(0.5,0,0,0),
+									glm::vec4(0,0.5,0,0),
+									glm::vec4(0,0,0.5,0),
+									glm::vec4(0,0,0,1));
 		glm::vec4 start = b->getWorldCoordMat() * glm::vec4(0.0,0.0,0.0,1.0);
-		glm::vec4 tang = b->getWorldCoordMat() * glm::vec4(b->tangent,1.0);
-		glm::vec4 normal = b->getWorldCoordMat() * glm::vec4(b->normal,1.0);
-		glm::vec4 binorm = b->getWorldCoordMat() * glm::vec4(b->bd,1.0);
+		glm::vec4 normal = b->getWorldCoordMat() * scale * glm::vec4(b->normal,1.0);
+		glm::vec4 binorm = b->getWorldCoordMat() * scale * glm::vec4(b->bd,1.0);
 		lm.vertices.push_back(start);
-		lm.vertices.push_back(tang);
 		lm.vertices.push_back(normal);
 		lm.vertices.push_back(binorm);
 		lm.bone_lines.push_back(glm::uvec2(0,1));
 		lm.bone_lines.push_back(glm::uvec2(0,2));
-		lm.bone_lines.push_back(glm::uvec2(0,3));		
+		lm.color.push_back(glm::vec4(0,0,0,1));
+		lm.color.push_back(glm::vec4(1,0,0,1));
+		lm.color.push_back(glm::vec4(0,0,1,1));
 }
 
