@@ -77,31 +77,6 @@ void Mesh::loadpmd(const std::string& fn)
 	for (int n = skeleton.joints.size() - 1; n > 0; --n) {
 		skeleton.constructBone(skeleton.joints[n]);
 	}
-
-	Bone *x = skeleton.bones[1];
-	Bone *y = skeleton.bones[2];
-	Bone *z = skeleton.bones[3];
-
-	std::cout << "---- Bone 1 Matrices ----" << std::endl;
-	printMat(x->translation);
-	printMat(x->rotation);
-	printMat(x->getCoordSys());
-	std::cout << "Bone " << x->id << " start: " << glm::to_string(x->getWorldCoordStartPoint()) << std::endl;
-	std::cout << "Bone " << x->id << " end: " << glm::to_string(x->getWorldCoordEndPoint()) << std::endl;
-
-	std::cout << "---- Bone 2 Matrices ----" << std::endl;
-	printMat(y->translation);
-	printMat(y->rotation);
-	printMat(y->getCoordSys());
-	std::cout << "Bone " << y->id << " start: " << glm::to_string(y->getWorldCoordStartPoint()) << std::endl;
-	std::cout << "Bone " << y->id << " end: " << glm::to_string(y->getWorldCoordEndPoint()) << std::endl;
-
-	std::cout << "---- Bone 3 Matrices ----" << std::endl;
-	printMat(z->translation);
-	printMat(z->rotation);
-	printMat(z->getCoordSys());
-	std::cout << "Bone " << z->id << " start: " << glm::to_string(z->getWorldCoordStartPoint()) << std::endl;
-	std::cout << "Bone " << z->id << " end: " << glm::to_string(z->getWorldCoordEndPoint()) << std::endl;
 }
 
 void Mesh::updateAnimation()
@@ -138,7 +113,7 @@ void Skeleton::constructBone(Joint j) {
 		b->translation[3][0] = p.offset.x;
 		b->translation[3][1] = p.offset.y;
 		b->translation[3][2] = p.offset.z;
-		// b->rotation = b->parent->rotation * b->rotation;
+		// b->rotation = glm::inverse(b->parent->rotation) * b->rotation;
 	} else {
 		b->parent = nullptr;
 		// translation and rotation are with respect to world coords

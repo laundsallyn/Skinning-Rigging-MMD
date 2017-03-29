@@ -7,56 +7,44 @@
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/ext.hpp>
 
 namespace {
-	// Intersect a cylinder with radius 1/2, height 1, with base centered at
-	// (0, 0, 0) and up direction (0, 1, 0).
-	bool IntersectCylinder(const glm::vec3& origin, const glm::vec3& direction,
-			float radius, float height, float* t)
-	{
-		//FIXME perform proper ray-cylinder collision detection
-		glm::vec3 base(0, 0, 0); // base of cylinder
-		glm::vec3 up(0, 1, 0);   // direction of cylinder from base
-		bool earlyExit;
-		bool capIntersect;
-		bool bodyIntersect;
-		static const float ray_epsilon = 0.00000001;
-
-		if (direction[1] == 0.0 && (origin[1] > height || origin[1] < 0.0)) {
-			// ray parallel to caps, and camera
-			// position is above/below cylinder
-			return false;
-		}
-
-		// body intersection, only checking this
+	bool intersectBody(const glm::vec3& origin, const glm::vec3& direction,
+		float radius, float height, float* t) {
+		//TODO: check for intersection on body of a cylinder
+		float RAY_EPSILON = 0.000001;
 		float px = origin[0];
 		float pz = origin[2];
 		float dx = direction[0];
 		float dz = direction[2];
 
-		float a = dx*dx + dz*dz;
-		float b = 2.0*(px*dx + pz*dz);
-		float c = px*px + pz*pz - radius;
-		if (0.0 == a) {
+		float a = dx*dx + dz*dz;          // x^2 + z^2 = 1
+		float b = 2.0*(px*dx + pz*dz);    // ?
+		float c = px*px + pz*pz - radius; // x^2 + z^2 - 1 = c
+
+		if (a == 0.0) {
+			// direction is parallel to cylinder
+			// cannot intersect with body
 			return false;
 		}
 
-		float discriminant = b*b - 4.0*a*c;
+		float discriminant = b*b - 4.0*a*c; //b^2 - 4ac
 		if (discriminant < 0.0) {
-			// imaginary?
+			// discriminant is imaginary
 			return false;
 		}
-
 		discriminant = sqrt(discriminant);
-		float t2 = (-b + discriminant)/ (2.0 * a);
-		if (t2 <= ray_epsilon) {
-			return false;
-		}
-		float t1 = (-b - discriminant)/ (2.0 * a);
 
-		glm::vec3 p = origin + (t1 * direction);
-		if (t1 > ray_epsilon) {
-			
+		// -b +/- sqrt(b^2 - 4ac)/2a
+		float t2 = (-b + discriminant) / (2.0 *a);
+		if (t2 <= RAY_EPSILON) {
+			return false; //why?
+		}
+
+		float t1 = (-b - discriminant) / (2.0 *a);
+		if (t1 > RAY_EPSILON) {
+			glm::vec3 p = origin + direction * t1;
 			float y = p[1];
 			if (y >= 0.0 && y <= height) {
 				*t = t1;
@@ -64,11 +52,82 @@ namespace {
 			}
 		}
 
-		// p = origin + (t2 * direction);
+		glm::vec3 p = origin + direction * t2;
+		float y = p[1];
+		if (y >= 0.0 && y <= height) {
+			*t = t2;
+			return true;
+		}
+		return false;
+	}
 
-		
+	bool intersectCaps(const glm::vec3& origin, const glm::vec3& direction,
+		float radius, float height, float* t) {
+		//TODO: check for intersection on caps of cylinder
+		float py = origin[1];
+		float dy = direction[1];
+		float RAY_EPSILON = 0.000001;
+
+		if (dy == 0.0) {
+			return false;
+		}
+
+		float t1, t2;
+
+		if (dy > 0.0) {
+			t1 = (-py)/py;
+			t2 = (1.0-py)/dy;
+		} else {
+			t1 = (1.0-py)/dy;
+			t2 = (-py)/py;
+		}
+
+		if (t2 < RAY_EPSILON) {
+			return false;
+		}
+
+		if (t1 >= RAY_EPSILON) {
+			glm::vec3 p = origin + direction*t1;
+			if ((p[0]*p[0] + p[2]*p[2]) <= radius) {
+				*t = t1;
+				return true;
+			} 
+		}
+
+		glm::vec3 p = origin + direction*t2;
+		if ((p[0]*p[0] + p[2]*p[2]) <= radius) {
+			*t = t2;
+			return true;
+		}
 
 		return false;
+	}
+
+	// Intersect a cylinder with radius 1/2, height 1, with base centered at
+	// (0, 0, 0) and up direction (0, 1, 0).
+	bool IntersectCylinder(const glm::vec3& origin, const glm::vec3& direction,
+			float radius, float height, float* t)
+	{
+		glm::vec3 base(0, 0, 0); // base of cylinder
+		glm::vec3 up(0, 1, 0);   // direction of cylinder from base
+
+		// if (direction[1] == 0.0 && (origin[1] > height || origin[1] < 0.0)) {
+		// 	// ray parallel to caps, and camera
+		// 	// position is above/below cylinder
+		// 	return false;
+		// }
+
+		if (intersectCaps(origin, direction, radius, height, t)) {
+			float tt;
+			if (intersectBody(origin, direction, radius, height, &tt)) {
+				if (tt < (*t)) {
+					*t = tt;
+				}
+			}
+			return true;
+		} else {
+			return intersectBody(origin, direction, radius, height, t);
+		}
 	}
 }
 
@@ -164,11 +223,13 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 
 	// FIXME: highlight bones that have been moused over
 	current_bone_ = -1;
+	// std::cout << "Camera coord: " << glm::to_string(eye_) << std::endl;
+	// std::cout << "Camera direc: " << glm::to_string(glm::normalize(center_ - eye_)) << std::endl;
 	for (int n = 1; n < mesh_->getNumberOfBones(); ++n) {
 		// turn camera and camera direction into bone's coordinates
 		float t;
-		glm::vec3 eyeToBoneCoord = mesh_->skeleton.bones[n]->getCoordSys() * eye_;
-		if (IntersectCylinder(eye_, center_ - eye_, 0.5, 1, &t)) {
+		// glm::vec3 eyeToBoneCoord = mesh_->skeleton.bones[n]->getCoordSys() * eye_;
+		if (IntersectCylinder(eye_, glm::normalize(center_ - eye_), 0.5, 1, &t)) {
 			if (setCurrentBone(n)) {
 				break;
 			} else {
@@ -176,7 +237,7 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 			}
 		}
 	}
-	std::cout << "Current bone: " << getCurrentBone() << std::endl;
+	// std::cout << "Current bone: " << getCurrentBone() << std::endl;
 	
 }
 
