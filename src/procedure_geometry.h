@@ -16,4 +16,6 @@ void create_floor(std::vector<glm::vec4>& floor_vertices, std::vector<glm::uvec3
 void create_linemesh(LineMesh&, Skeleton);
 void create_default(LineMesh&);
 void create_cylinder(LineMesh&, Skeleton, int);
+void create_coordinate(LineMesh&, Skeleton, int);
+
 #endif

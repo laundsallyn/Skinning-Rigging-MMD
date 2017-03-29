@@ -68,8 +68,26 @@ void create_cylinder(LineMesh& lm, Skeleton sk, int index){
 		}
 		lastS = lm.currentIndex;
 		lastE = lm.currentIndex + 1;
-		 deg += 30;	
+		deg += 30;	
 		lm.currentIndex += 2;
 
 	}
 }
+
+//remember to call create_cylinder and create_bone_coordinate at the same time.
+
+void create_coordinate(LineMesh& lm, Skeleton sk, int index){
+		Bone* b = sk.bones[index];
+		glm::vec4 start = b->getWorldCoordMat() * glm::vec4(0.0,0.0,0.0,1.0);
+		glm::vec4 tang = b->getWorldCoordMat() * glm::vec4(b->tangent,1.0);
+		glm::vec4 normal = b->getWorldCoordMat() * glm::vec4(b->normal,1.0);
+		glm::vec4 binorm = b->getWorldCoordMat() * glm::vec4(b->bd,1.0);
+		lm.vertices.push_back(start);
+		lm.vertices.push_back(tang);
+		lm.vertices.push_back(normal);
+		lm.vertices.push_back(binorm);
+		lm.bone_lines.push_back(glm::uvec2(0,1));
+		lm.bone_lines.push_back(glm::uvec2(0,2));
+		lm.bone_lines.push_back(glm::uvec2(0,3));		
+}
+
