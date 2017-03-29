@@ -228,9 +228,20 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 	for (int n = 1; n < mesh_->getNumberOfBones(); ++n) {
 		// turn camera and camera direction into bone's coordinates
 		float t;
-		// glm::vec3 eyeToBoneCoord = mesh_->skeleton.bones[n]->getCoordSys() * eye_;
-		if (IntersectCylinder(eye_, glm::normalize(center_ - eye_), 0.5, 1, &t)) {
+		Bone* b = mesh_->skeleton.bones[n];
+		glm::vec4 start = b->getWorldCoordMat() * glm::vec4(0,0,0,1);
+		glm::vec4 origin = glm::vec4(getCamera(), 1) - start;
+		origin = b->getWorldCoordMat() * origin;
+		glm::vec4 dir = glm::vec4(normalize(center_ - eye_), 0);
+		dir = b->getWorldCoordMat() * dir;
+		// if (n == 1) {
+		// 	std::cout << "origin: " << glm::to_string(origin) << std::endl;
+		// 	std::cout << "dir   : " << glm::to_string(dir) << std::endl;
+		// }
+		
+		if (IntersectCylinder(glm::vec3(origin), glm::vec3(dir), 0.5, b->length, &t)) {
 			if (setCurrentBone(n)) {
+				std::cout << "Current Bone: " << n << std::endl;
 				break;
 			} else {
 				std::cout << "GUI BUG: attempted to set bone, but failure?" << std::endl;

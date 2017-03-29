@@ -145,6 +145,15 @@ glm::mat4 Bone::getCoordSys() {
 	}
 }
 
+glm::mat4 Bone::getWorldCoordMat() {
+	if (parent == nullptr) {
+		return translation; // TODO: reverse order?
+	} else {
+		//currently disabled rotation
+		return parent->getWorldCoordMat() * (translation);
+	}
+}
+
 glm::vec4 Bone::getWorldCoordStartPoint() {
 	glm::vec4 coord = glm::vec4(0, 0, 0, 1);
 	if (parent == nullptr) {

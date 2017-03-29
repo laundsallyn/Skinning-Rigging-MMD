@@ -58,6 +58,7 @@ struct Bone {
     glm::mat4 getWorldRotation(); //R0 R1 R4 R7
     glm::mat4 getWorldTRMat();   //T0R0 T1R1 T4R4 T7R7
     glm::mat4 getTMatFromWorld();
+    glm::mat4 getWorldCoordMat();
 
     Joint start;
     Joint end;
