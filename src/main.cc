@@ -273,6 +273,7 @@ int main(int argc, char* argv[])
 
 	RenderDataInput coordinate_pass_input;
 	coordinate_pass_input.assign(0,"vertex_position",coordinate.vertices.data(), coordinate.vertices.size(),4, GL_FLOAT);
+	coordinate_pass_input.assign(1,"color", coordinate.color.data(), coordinate.vertices.size(),4,GL_FLOAT);
 	coordinate_pass_input.assign_index(coordinate.bone_lines.data(), coordinate.bone_lines.size(),2);
 	RenderPass coordinate_pass(-1,
 			coordinate_pass_input,
