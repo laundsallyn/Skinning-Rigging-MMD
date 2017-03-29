@@ -87,6 +87,7 @@ GLFWwindow* init_glefw()
 
 int main(int argc, char* argv[])
 {
+	int last_bone = -1;
 	if (argc < 2) {
 		std::cerr << "Input model file is missing" << std::endl;
 		std::cerr << "Usage: " << argv[0] << " <PMD file>" << std::endl;
@@ -256,36 +257,7 @@ int main(int argc, char* argv[])
 			{ "fragment_color" }
 			);
 
-	RenderDataInput cylinder_pass_input;
-	cylinder_pass_input.assign(0,"vertex_position",mesh.cylinder.vertices.data(), mesh.cylinder.vertices.size(),4, GL_FLOAT);
-	cylinder_pass_input.assign_index(mesh.cylinder.bone_lines.data(), mesh.cylinder.bone_lines.size(),2);
-	RenderPass cylinder_pass(-1,
-			cylinder_pass_input,
-			{
-				vertex_shader,
-				line_mesh_geometry_shader,
-				cylinder_fragment_shader
-			},
-			{ cylinder_mesh_model, std_view, std_proj,
-			  std_light},
-			{ "fragment_color" }
-			);
-
-	RenderDataInput coordinate_pass_input;
-	coordinate_pass_input.assign(0,"vertex_position",coordinate.vertices.data(), coordinate.vertices.size(),4, GL_FLOAT);
-	coordinate_pass_input.assign(1,"color", coordinate.color.data(), coordinate.vertices.size(),4,GL_FLOAT);
-	coordinate_pass_input.assign_index(coordinate.bone_lines.data(), coordinate.bone_lines.size(),2);
-	RenderPass coordinate_pass(-1,
-			coordinate_pass_input,
-			{
-				vertex_shader,
-				line_mesh_geometry_shader,
-				coordinate_fragment_shader
-			},
-			{ coordinate_mesh_model, std_view, std_proj,
-			  std_light},
-			{ "fragment_color" }
-			);
+	
 
 
 	RenderDataInput floor_pass_input;
@@ -334,12 +306,44 @@ int main(int argc, char* argv[])
 			bone_pass.setup();
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, line_mesh.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
 		}
-		if(draw_cylinder){
-			cylinder_pass.setup();
-			CHECK_GL_ERROR(glDrawElements(GL_LINES, mesh.cylinder.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
-			coordinate_pass.setup();
+		if(draw_cylinder ){
+			RenderDataInput cylinder_pass_input;
+			cylinder_pass_input.assign(0,"vertex_position",mesh.cylinder.vertices.data(), mesh.cylinder.vertices.size(),4, GL_FLOAT);
+			cylinder_pass_input.assign_index(mesh.cylinder.bone_lines.data(), mesh.cylinder.bone_lines.size(),2);
+			RenderPass cylinder_pass(-1,
+					cylinder_pass_input,
+					{
+						vertex_shader,
+						line_mesh_geometry_shader,
+						cylinder_fragment_shader
+					},
+					{ cylinder_mesh_model, std_view, std_proj,
+					  std_light},
+					{ "fragment_color" }
+					);
 
+			RenderDataInput coordinate_pass_input;
+			coordinate_pass_input.assign(0,"vertex_position",coordinate.vertices.data(), coordinate.vertices.size(),4, GL_FLOAT);
+			coordinate_pass_input.assign(1,"color", coordinate.color.data(), coordinate.vertices.size(),4,GL_FLOAT);
+			coordinate_pass_input.assign_index(coordinate.bone_lines.data(), coordinate.bone_lines.size(),2);
+			RenderPass coordinate_pass(-1,
+					coordinate_pass_input,
+					{
+						vertex_shader,
+						line_mesh_geometry_shader,
+						coordinate_fragment_shader
+					},
+					{ coordinate_mesh_model, std_view, std_proj,
+					  std_light},
+					{ "fragment_color" }
+					);
+				coordinate_pass.setup();
+				cylinder_pass.setup();
+			
+
+			CHECK_GL_ERROR(glDrawElements(GL_LINES, mesh.cylinder.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, coordinate.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
+			last_bone = current_bone;
 		}
 
 		// Then draw floor.
