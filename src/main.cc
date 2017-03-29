@@ -333,7 +333,7 @@ int main(int argc, char* argv[])
 			bone_pass.setup();
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, line_mesh.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
 		}
-		if(true){
+		if(draw_cylinder){
 			cylinder_pass.setup();
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, cylinder.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
 			coordinate_pass.setup();

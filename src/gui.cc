@@ -2,6 +2,7 @@
 #include "config.h"
 #include <jpegio.h>
 #include "bone_geometry.h"
+#include "procedure_geometry.h"
 #include <iostream>
 #include <debuggl.h>
 #include <glm/gtc/matrix_access.hpp>
@@ -234,10 +235,6 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 		origin = b->getWorldCoordMat() * origin;
 		glm::vec4 dir = glm::vec4(normalize(center_ - eye_), 0);
 		dir = b->getWorldCoordMat() * dir;
-		// if (n == 1) {
-		// 	std::cout << "origin: " << glm::to_string(origin) << std::endl;
-		// 	std::cout << "dir   : " << glm::to_string(dir) << std::endl;
-		// }
 		
 		if (IntersectCylinder(glm::vec3(origin), glm::vec3(dir), 0.5, b->length, &t)) {
 			if (setCurrentBone(n)) {
