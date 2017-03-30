@@ -117,8 +117,8 @@ int main(int argc, char* argv[])
 	create_linemesh(line_mesh, mesh.skeleton);
 	LineMesh cylinder;
 	LineMesh coordinate;
-	create_cylinder(cylinder, mesh.skeleton, 1);
-	create_coordinate(coordinate,mesh.skeleton,1);
+	create_cylinder(cylinder, mesh.skeleton, 100);
+	create_coordinate(coordinate,mesh.skeleton,100);
 	// for(int i = 0; i < line_mesh.vertices.size(); ++i){
 	// 	std::cout<<glm::to_string(line_mesh.vertices[i])<<std::endl;
 	// }
