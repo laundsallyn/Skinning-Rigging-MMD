@@ -47,18 +47,30 @@ struct Bone {
 
         // R = [tvec nvec bvec]
         rotation = glm::mat4(glm::mat3(tangent, normal, bd));
-        rotation[3][3] = 1.0f;
+		rotation[3][3] = 1.0f;
+
+        absRotation = makeRotateMat(e.offset);
+        if (s.parent == -1) {
+        	relRotation = absRotation;
+        } else {
+        	relRotation = glm::transpose(makeRotateMat(s.offset)) * absRotation;
+        }
         // TODO: change translation matrix
         translation = glm::mat4(1.0f);
+        translation[3][0] = s.offset.x;
+        translation[3][1] = s.offset.y;
+        translation[3][2] = s.offset.z;
     }
 
     glm::vec4 getWorldCoordStartPoint();
     glm::vec4 getWorldCoordEndPoint();
-    glm::mat4 getCoordSys();
-    glm::mat4 getWorldRotation(); //R0 R1 R4 R7
-    glm::mat4 getWorldTRMat();   //T0R0 T1R1 T4R4 T7R7
-    glm::mat4 getTMatFromWorld();
     glm::mat4 getWorldCoordMat();
+    glm::mat4 getAbsRotation(); // [^t ^n ^b] = R1R2...Ri
+    glm::mat4 getRelRotation(); // Ri
+    glm::mat4 getTranslation(); // Ti
+    glm::mat4 getWorldMat();    // T1R1...TiRi
+    static glm::mat4 makeRotateMat(glm::vec3 offset);
+    glm::mat4 testTotalRotation(); // R1R2...Ri
 
     Joint start;
     Joint end;
@@ -69,6 +81,8 @@ struct Bone {
     glm::vec3 bd; // Binormal direction
     glm::mat4 translation;
     glm::mat4 rotation;
+    glm::mat4 relRotation;
+    glm::mat4 absRotation;
     int id;
     Bone* parent;
 }typedef Bone;
