@@ -237,7 +237,7 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 		glm::vec4 start = b->getWorldCoordMat() * glm::vec4(0,0,0,1);
 		glm::vec4 origin = glm::vec4(eye_,1);
 		origin = b->getWorldCoordMat() * origin;
-		glm::vec4 dir = glm::vec4(normalize(world_coordinate_near - eye_), 0);
+		glm::vec4 dir = glm::vec4(normalize(b->getWorldCoordMat() * world_coordinate_near - origin), 0);
 		dir = b->getWorldCoordMat() * dir;
 		
 		if (IntersectCylinder(glm::vec3(origin), glm::vec3(dir), 0.5, b->length, &t)) {
