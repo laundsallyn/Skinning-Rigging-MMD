@@ -46,32 +46,30 @@ void create_default(LineMesh& lm){
 
 void create_cylinder(LineMesh& lm, Skeleton sk, int index){
 	Bone* b = sk.bones[index];
-	glm::vec4 start = b->getWorldCoordMat() * glm::vec4(0.0,0.0,0.0,1.0);
-	glm::vec4 end = b->getWorldCoordMat() * b->rotation * glm::vec4(b->length, 0, 0,1);
-	glm::vec3 t = b->tangent;
+	glm::vec4 start = glm::vec4(0.0,0.0,0.0,1.0);
+	glm::vec4 end =  b->rotation * glm::vec4(b->length, 0, 0,1);
 	glm::vec3 offset = b->bd;
-	offset.x /=8.0; offset.y/=8.0; offset.z /= 8.0;
+	offset.x =0.2; offset.y = 0.2; offset.z = 0.2;
 	float deg = 0.0;
 	int lastS = -1; int lastE = -1;
-	start -= glm::vec4(offset,0);
-	end -= glm::vec4(offset,0);
+	glm::vec3 axis = glm::normalize(glm::vec3(start - end));
+	start += glm::vec4(offset,0);
+	end += glm::vec4(offset,0);
 	while(deg <= 360){
 		float rad = glm::radians(30.0);
-		start = glm::rotate(rad, t) * start;
-		end = glm::rotate(rad, t) * end;
-		lm.vertices.push_back(start);
-		lm.vertices.push_back(end);
+		start = glm::rotate(rad, axis) * start;
+		end = glm::rotate(rad, axis) * end;
+		lm.vertices.push_back( b->getWorldCoordMat() * start);
+		lm.vertices.push_back( b->getWorldCoordMat() * end);
 		lm.bone_lines.push_back(glm::uvec2(lm.currentIndex,lm.currentIndex+1));
 		if(lastS > -1){
 			lm.bone_lines.push_back(glm::uvec2(lastS,lm.currentIndex));
 			lm.bone_lines.push_back(glm::uvec2(lastE,lm.currentIndex+1));
-
 		}
 		lastS = lm.currentIndex;
 		lastE = lm.currentIndex + 1;
 		deg += 30;	
 		lm.currentIndex += 2;
-
 	}
 }
 
