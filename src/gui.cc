@@ -199,7 +199,6 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 	float delta_y = current_y_ - last_y_;
 	if (sqrt(delta_x * delta_x + delta_y * delta_y) < 1e-15)
 		return;
-	
 	glm::vec3 mouse_direction = glm::normalize(glm::vec3(delta_x, delta_y, 0.0f));
 	glm::vec2 mouse_start = glm::vec2(last_x_, last_y_);
 	glm::vec2 mouse_end = glm::vec2(current_x_, current_y_);
@@ -251,7 +250,7 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 			std::cout << "origin: " << glm::to_string(origin) << std::endl;
 			std::cout << "dir: " << glm::to_string(dir) << std::endl;
 			if (setCurrentBone(n)) {
-				create_cylinder(mesh_->cylinder, mesh_->skeleton, n);
+				// create_cylinder(mesh_->cylinder, mesh_->skeleton, n);
 				break;
 			} else {
 				std::cout << "GUI BUG: attempted to set bone, but failure?" << std::endl;

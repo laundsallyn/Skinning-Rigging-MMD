@@ -94,6 +94,7 @@ public:
 		vertices.clear();
 		bone_lines.clear();
 		color.clear();
+		currentIndex = 0;
 	}
 };
 
