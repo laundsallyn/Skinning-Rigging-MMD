@@ -25,8 +25,10 @@ void create_linemesh(LineMesh& line_mesh, Skeleton skeleton){
 	for(int i = 1; i < skeleton.bones.size(); ++i){
 		Bone* b = skeleton.bones[i];
 
-		line_mesh.vertices.push_back(b->getWorldCoordMat() * glm::vec4( 0.0,0.0,0.0,1));
-		line_mesh.vertices.push_back(b->getWorldCoordMat() * b->rotation * glm::vec4(b->length, 0, 0,1));
+		// line_mesh.vertices.push_back(b->getWorldCoordMat() * glm::vec4( 0.0,0.0,0.0,1));
+		// line_mesh.vertices.push_back(b->getWorldCoordMat() * b->getAbsRotation() * glm::vec4(b->length, 0, 0,1));
+		line_mesh.vertices.push_back(b->getWorldMat() * glm::vec4( 0.0,0.0,0.0,1));
+		line_mesh.vertices.push_back(b->getWorldMat() * glm::vec4(b->length, 0, 0,1));
 		line_mesh.bone_lines.push_back(glm::uvec2(line_mesh.currentIndex, line_mesh.currentIndex+1));
 		line_mesh.currentIndex+= 2;
 	}
