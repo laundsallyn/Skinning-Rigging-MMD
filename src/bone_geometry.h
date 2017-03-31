@@ -50,16 +50,18 @@ struct Bone {
 		rotation[3][3] = 1.0f;
 
         absRotation = makeRotateMat(e.offset);
+        glm::mat4 pAbsRotInverse = glm::transpose(makeRotateMat(s.offset);
         if (s.parent == -1) {
         	relRotation = absRotation;
         } else {
-        	relRotation = glm::transpose(makeRotateMat(s.offset)) * absRotation;
+        	relRotation = pAbsRotInverse * absRotation;
         }
         // TODO: change translation matrix
+        glm::vec4 relOffset= pAbsRotInverse * glm::vec4(s.offset, 1);
         translation = glm::mat4(1.0f);
-        translation[3][0] = s.offset.x;
-        translation[3][1] = s.offset.y;
-        translation[3][2] = s.offset.z;
+        translation[3][0] = relOffset.x;
+        translation[3][1] = relOffset.y;
+        translation[3][2] = relOffset.z;
     }
 
     glm::vec4 getWorldCoordStartPoint();
