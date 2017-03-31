@@ -50,12 +50,11 @@ struct Bone {
 		rotation[3][3] = 1.0f;
 
         absRotation = makeRotateMat(e.offset);
-        glm::mat4 pAbsRotInverse = glm::transpose(makeRotateMat(s.offset);
+        glm::mat4 pAbsRotInverse = glm::transpose(makeRotateMat(s.offset));
         if (s.parent == -1) {
-        	relRotation = absRotation;
-        } else {
-        	relRotation = pAbsRotInverse * absRotation;
+        	pAbsRotInverse = glm::mat4(1.0f);
         }
+        relRotation = pAbsRotInverse * absRotation;
         // TODO: change translation matrix
         glm::vec4 relOffset= pAbsRotInverse * glm::vec4(s.offset, 1);
         translation = glm::mat4(1.0f);
@@ -96,7 +95,7 @@ struct Skeleton {
 	std::vector<Bone*>  bones;
 	std::vector<SparseTuple> weights;
 
-	void constructBone(Joint j);
+	void constructBone(int jid);
 };
 
 struct Mesh {

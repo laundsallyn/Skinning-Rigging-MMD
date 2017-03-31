@@ -62,7 +62,7 @@ void Mesh::loadpmd(const std::string& fn)
 		Joint j(id, offset, parent);
 
 		skeleton.joints.push_back(j);
-
+		// std::cout << "joint" << id << std::endl;
 		++id;
 	}
 	mr.getJointWeights(skeleton.weights);
@@ -74,26 +74,13 @@ void Mesh::loadpmd(const std::string& fn)
 
 	skeleton.bones.resize(skeleton.joints.size());
 
-	for (int n = skeleton.joints.size() - 1; n > 0; --n) {
-		skeleton.constructBone(skeleton.joints[n]);
-	}
-
-	for (int n = 1; n < 4; ++n) {
+	skeleton.bones[0] = nullptr; // there is no bone 0, because joint 0 
+	                             // is not an endpoint for a bone
+	for (int n = 1; n < skeleton.joints.size(); ++n) {
+		skeleton.constructBone(n);
 		Bone* b = skeleton.bones[n];
-		std:: cout << "--- Bone " << b->id << " ---" << std::endl;
-		std::cout << "World (abs) rotation" << std::endl;
-		printMat(b->rotation);
-		printMat(Bone::makeRotateMat(b->tangent));
-		printMat(b->getAbsRotation());
-		std::cout << "Relative rotation" << std::endl;
-		printMat(b->getRelRotation());
-		std::cout << "Translation" << std::endl;
-		printMat(b->getTranslation());
-		std::cout << "World Mat" << std::endl;
-		printMat(b->getWorldMat());
-		// printMat(z->testTotalRotation());
-		std::cout << "Correct World Mat" << std::endl;
-		printMat(b->getWorldCoordMat() * b->getAbsRotation());
+		std::cout << "joint" << n << std::endl;
+		// printMat(b->getWorldCoordMat());
 	}
 }
 
@@ -115,13 +102,14 @@ void Mesh::computeBounds()
 	}
 }
 
-void Skeleton::constructBone(Joint j) {
+void Skeleton::constructBone(int jid) {
 // std::cout << "Skeleton::constructBone: joint.id = " << j.id << std::endl;
-	if (j.id <= 0 || bones[j.id] != nullptr) {
+	if (jid <= 0 || bones[jid] != nullptr) {
 		return;
 	}
+	Joint j = joints[jid];
 
-	constructBone(joints[j.parent]);
+	constructBone(j.parent);
 	Bone *b = new Bone(joints[j.parent], j);
 	bones[j.id] = b;
 	joints[j.parent].children.push_back(j.id);
