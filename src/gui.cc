@@ -226,7 +226,11 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 	// FIXME: highlight bones that have been moused over
 	current_bone_ = -1;
 	glm::vec3 world_coordinate_near =  glm::unProject(glm::vec3(current_x_, current_y_, 0.0), model_matrix_, projection_matrix_, viewport);
-	// glm::vec3 world_coordinate_far = glm::unProject(glm::vec3(current_x_, current_y_, 1.0), model_matrix_, projection_matrix_, viewport);
+	std::cout << "eye: " << glm::to_string(getCamera()) << std::endl;
+	std::cout << "dir: " << glm::to_string(world_coordinate_near) << std::endl;
+	// std::cout << "pos: " << glm::to_string(world_coordinate_near - getCenter()) << std::endl;
+	// near => dir
+	// position = near - eye
 
 	// std::cout << "Camera coord: " << glm::to_string(eye_) << std::endl;
 	// std::cout << "Camera direc: " << glm::to_string(glm::normalize(center_ - eye_)) << std::endl;
@@ -234,16 +238,18 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 		// turn camera and camera direction into bone's coordinates
 		float t;
 		Bone* b = mesh_->skeleton.bones[n];
-		world_coordinate_near = world_coordinate_near;
 		glm::vec4 start = b->getWorldCoordMat() * glm::vec4(0,0,0,1);
-		glm::vec4 origin = glm::vec4(eye_,1) - start;
-		glm::vec4 dir = glm::vec4(glm::normalize(world_coordinate_near - eye_), 0);
-		// dir = b->getWorldCoordMat() * b->rotation * dir;
-		
+		glm::vec4 origin = glm::vec4(getCamera(),2) - start;
+		origin = b->rotation * origin;
+		glm::vec4 dir = glm::vec4(glm::normalize(world_coordinate_near), 1);
+		dir = b->rotation * dir;
+		// if (b->id < 3) {
+		// 	std::cout << b->id << " origin: " << glm::to_string(origin) << std::endl;
+		// 	std::cout << b->id << " dir: " << glm::to_string(dir) << std::endl;
+		// }
 		if (IntersectCylinder(glm::vec3(origin), glm::vec3(dir), 0.5, b->length, &t)) {
-			if (getCurrentBone() == n) {
-				break;
-			}
+			std::cout << "origin: " << glm::to_string(origin) << std::endl;
+			std::cout << "dir: " << glm::to_string(dir) << std::endl;
 			if (setCurrentBone(n)) {
 				create_cylinder(mesh_->cylinder, mesh_->skeleton, n);
 				break;
