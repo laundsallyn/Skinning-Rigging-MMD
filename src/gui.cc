@@ -224,15 +224,8 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 
 	// FIXME: highlight bones that have been moused over
 	current_bone_ = -1;
-	glm::vec3 world_coordinate_near =  glm::unProject(glm::vec3(current_x_, current_y_, 0.0), model_matrix_, projection_matrix_, viewport);
-	std::cout << "eye: " << glm::to_string(getCamera()) << std::endl;
-	std::cout << "dir: " << glm::to_string(world_coordinate_near) << std::endl;
-	// std::cout << "pos: " << glm::to_string(world_coordinate_near - getCenter()) << std::endl;
-	// near => dir
-	// position = near - eye
+	glm::vec3 world_coordinate_near =  glm::unProject(glm::vec3(current_x_, current_y_, 0.0), view_matrix_ * model_matrix_, projection_matrix_, viewport);
 
-	// std::cout << "Camera coord: " << glm::to_string(eye_) << std::endl;
-	// std::cout << "Camera direc: " << glm::to_string(glm::normalize(center_ - eye_)) << std::endl;
 	for (int n = 1; n < mesh_->getNumberOfBones(); ++n) {
 		// turn camera and camera direction into bone's coordinates
 		float t;
@@ -240,11 +233,11 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 		glm::vec4 start = b->getWorldCoordMat() * glm::vec4(0,0,0,1);
 		glm::vec4 origin = glm::vec4(getCamera(),2) - start;
 		origin = b->rotation * origin;
-		glm::vec4 dir = glm::vec4(glm::normalize(world_coordinate_near), 1);
+		glm::vec4 dir = glm::vec4(glm::normalize(world_coordinate_near - getCamera()), 1);
 		dir = b->rotation * dir;
 		// if (b->id < 3) {
-		// 	std::cout << b->id << " origin: " << glm::to_string(origin) << std::endl;
-		// 	std::cout << b->id << " dir: " << glm::to_string(dir) << std::endl;
+			// std::cout << b->id << " origin: " << glm::to_string(origin) << std::endl;
+			// std::cout << b->id << " dir: " << glm::to_string(dir) << std::endl;
 		// }
 		if (IntersectCylinder(glm::vec3(origin), glm::vec3(dir), 0.5, b->length, &t)) {
 			std::cout << "origin: " << glm::to_string(origin) << std::endl;
