@@ -241,7 +241,7 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 				break;
 			}
 			if (setCurrentBone(n)) {
-				create_cylinder(mesh_->cylinder, mesh_->skeleton, n);
+				// create_cylinder(mesh_->cylinder, mesh_->skeleton, n);
 				break;
 			} else {
 				std::cout << "GUI BUG: attempted to set bone, but failure?" << std::endl;

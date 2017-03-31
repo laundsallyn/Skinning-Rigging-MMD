@@ -310,9 +310,10 @@ int main(int argc, char* argv[])
 			if(current_bone != last_bone){
 				mesh.cylinder.clear();
 				mesh.coordinate.clear();
+				create_cylinder(mesh.cylinder, mesh.skeleton, current_bone);
+				create_coordinate(mesh.coordinate,mesh.skeleton,current_bone);
+
 			}
-			create_cylinder(mesh.cylinder, mesh.skeleton, current_bone);
-			create_coordinate(mesh.coordinate,mesh.skeleton,current_bone);
 			RenderDataInput cylinder_pass_input;
 			cylinder_pass_input.assign(0,"vertex_position",mesh.cylinder.vertices.data(), mesh.cylinder.vertices.size(),4, GL_FLOAT);
 			cylinder_pass_input.assign_index(mesh.cylinder.bone_lines.data(), mesh.cylinder.bone_lines.size(),2);
@@ -345,12 +346,11 @@ int main(int argc, char* argv[])
 					);
 			coordinate_pass.setup();
 			cylinder_pass.setup();
-			// }	
 
 
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, mesh.cylinder.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, coordinate.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
-			last_bone = current_bone;
+
 			// mesh.cylinder.clear();
 			// mesh.coordinate.clear();
 
@@ -386,6 +386,8 @@ int main(int argc, char* argv[])
 				CHECK_GL_ERROR(glDrawElements(GL_TRIANGLES, mesh.faces.size() * 3, GL_UNSIGNED_INT, 0));
 #endif
 		}
+		last_bone = current_bone;
+
 		// Poll and swap.
 		glfwPollEvents();
 		glfwSwapBuffers(window);
