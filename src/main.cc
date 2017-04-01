@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
 	// LineMesh cylinder;
 	// LineMesh coordinate;
 	// create_cylinder(mesh.cylinder, mesh.skeleton, 1);
-	// create_coordinate(coordinate,mesh.skeleton,1);
+	// create_coordinate(mesh.coordinate,mesh.skeleton,1);
 
 	// for(int i = 0; i < line_mesh.vertices.size(); ++i){
 	// 	std::cout<<glm::to_string(line_mesh.vertices[i])<<std::endl;
@@ -301,7 +301,7 @@ int main(int argc, char* argv[])
 #endif
 
 		// FIXME: Draw bones first.
-		if(draw_skeleton){
+		if(gui.isTransparent()){
 			bone_pass.setup();
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, line_mesh.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
 		}
@@ -312,6 +312,11 @@ int main(int argc, char* argv[])
 				mesh.coordinate.clear();
 				create_cylinder(mesh.cylinder, mesh.skeleton, current_bone);
 				create_coordinate(mesh.coordinate,mesh.skeleton,current_bone);
+				std::cout << "start: " << glm::to_string(mesh.coordinate.vertices[0]) << std::endl;
+				std::cout << "normal: " << glm::to_string(mesh.coordinate.vertices[1]) << std::endl;
+				std::cout << "binorm: " << glm::to_string(mesh.coordinate.vertices[2]) << std::endl;
+				std::cout << "line 1: " << glm::to_string(mesh.coordinate.bone_lines[0])<<std::endl;
+				std::cout << "line 2: " << glm::to_string(mesh.coordinate.bone_lines[1])<<std::endl;
 
 			}
 			RenderDataInput cylinder_pass_input;
@@ -331,7 +336,7 @@ int main(int argc, char* argv[])
 
 			RenderDataInput coordinate_pass_input;
 			coordinate_pass_input.assign(0,"vertex_position",mesh.coordinate.vertices.data(), mesh.coordinate.vertices.size(),4, GL_FLOAT);
-			coordinate_pass_input.assign(1,"color", mesh.coordinate.color.data(), mesh.coordinate.vertices.size(),4,GL_FLOAT);
+			coordinate_pass_input.assign(1,"color", mesh.coordinate.color.data(), mesh.coordinate.color.size(),4,GL_FLOAT);
 			coordinate_pass_input.assign_index(mesh.coordinate.bone_lines.data(), mesh.coordinate.bone_lines.size(),2);
 			RenderPass coordinate_pass(-1,
 					coordinate_pass_input,
@@ -344,11 +349,10 @@ int main(int argc, char* argv[])
 					  std_light},
 					{ "fragment_color" }
 					);
-			coordinate_pass.setup();
 			cylinder_pass.setup();
-
-
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, mesh.cylinder.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
+			coordinate_pass.setup();
+
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, mesh.coordinate.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
 
 			// mesh.cylinder.clear();

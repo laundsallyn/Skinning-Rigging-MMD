@@ -53,7 +53,7 @@ void create_cylinder(LineMesh& lm, Skeleton sk, int index){
 	glm::vec4 end =  glm::vec4(b->length, 0, 0,1);
 
 	glm::vec3 offset = b->bd;
-	offset.x =0.2; offset.y = 0.2; offset.z = 0.2;
+	offset.x =0.f; offset.y = 0.2f; offset.z = 0.2;
 	float deg = 0.0;
 	int lastS = -1; int lastE = -1;
 	glm::vec3 axis = glm::normalize(glm::vec3(start - end));
@@ -69,8 +69,6 @@ void create_cylinder(LineMesh& lm, Skeleton sk, int index){
 		// std::cout << "end : " << glm::to_string(end) << std::endl;
 		lm.vertices.push_back( b->WorldPointFromBone(start));
 		lm.vertices.push_back( b->WorldPointFromBone(end));
-		std::cout << "start: " << glm::to_string(b->WorldPointFromBone(start)) << std::endl;
-		std::cout << "end : " << glm::to_string(b->WorldPointFromBone(end)) << std::endl;
 		lm.bone_lines.push_back(glm::uvec2(lm.currentIndex,lm.currentIndex+1));
 		if(lastS > -1){
 			lm.bone_lines.push_back(glm::uvec2(lastS,lm.currentIndex));
@@ -92,8 +90,9 @@ void create_coordinate(LineMesh& lm, Skeleton sk, int index){
 		// 							glm::vec4(0,0,0.5,0),
 		// 							glm::vec4(0,0,0,1));
 		glm::vec4 start = b->WorldPointFromBone(glm::vec4(0,0,0,1));
-		glm::vec4 normal = b->WorldPointFromBone(glm::vec4(0,0.5, 0,1));
-		glm::vec4 binorm = b->WorldPointFromBone(glm::vec4(0,0, 0.5,1));
+		glm::vec4 normal = b->WorldPointFromBone(glm::vec4(0,-0.5, 0,1));
+		glm::vec4 binorm = b->WorldPointFromBone(glm::vec4(0,0,.5,1));
+	
 		lm.vertices.push_back(start);
 		lm.vertices.push_back(normal);
 		lm.vertices.push_back(binorm);
