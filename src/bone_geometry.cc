@@ -78,9 +78,17 @@ void Mesh::loadpmd(const std::string& fn)
 	                             // is not an endpoint for a bone
 	for (int n = 1; n < skeleton.joints.size(); ++n) {
 		skeleton.constructBone(n);
-		Bone* b = skeleton.bones[n];
-		std::cout << "joint" << n << std::endl;
+		// Bone* b = skeleton.bones[n];
+		// std::cout << "joint" << n << std::endl;
 		// printMat(b->getWorldCoordMat());
+	}
+
+	for (int n = 1; n < 4; ++n) {
+		Bone* b = skeleton.bones[n];
+		std::cout << "-- Bone " << b->id << " --" << std::endl;
+		// std::cout << glm::to_string(b->WorldPointFromBone(glm::vec4(0, 0 ,0, 1))) << std::endl;
+		// std::cout << glm::to_string(b->WorldPointFromBone(glm::vec4(b->length, 0 ,0, 1))) << std::endl;
+		// std::cout << glm::to_string(b->WorldPointFromBone(glm::vec4(1, 1, 1, 1))) << std::endl;
 	}
 }
 
@@ -115,21 +123,8 @@ void Skeleton::constructBone(int jid) {
 	joints[j.parent].children.push_back(j.id);
 	if (j.parent > 0) {
 		b->parent = bones[j.parent];
-		// Joint p = joints[j.parent];
-		glm::vec4 relOffset = b->parent->getWorldMat() * glm::vec4(b->end.offset, 1);
-		// b->translation[3][0] = relOffset.x;
-		// b->translation[3][1] = relOffset.y;
-		// b->translation[3][2] = relOffset.z;
-		// b->rotation = glm::inverse(b->parent->rotation) * b->rotation;
 	} else {
 		b->parent = nullptr;
-		// translation and rotation are with respect to world coords
-		// Joint p = joints[j.parent];
-		// b->translation[3][0] = p.offset.x;
-		// b->translation[3][1] = p.offset.y;
-		// b->translation[3][2] = p.offset.z;
-
-		// b->rotation = glm::mat4(1.0f);
 	}
 	return;
 }
@@ -143,6 +138,7 @@ void Skeleton::constructBone(int jid) {
        reutrn T1*R1*T2*R2*T3*R3
  */
 
+// TODO: remove method
 glm::mat4 Bone::getWorldCoordMat() {
 	if (parent == nullptr) {
 		return translation; // TODO: reverse order?
@@ -152,22 +148,22 @@ glm::mat4 Bone::getWorldCoordMat() {
 	}
 }
 
-glm::vec4 Bone::getWorldCoordStartPoint() {
+glm::vec4 Bone::getWorldStartPoint() {
 	glm::vec4 coord = glm::vec4(0, 0, 0, 1);
 	if (parent == nullptr) {
 		coord = translation * coord;
 	} else {
-		coord = parent->getWorldCoordMat() * translation * coord;
+		coord = parent->getWorldMat() * translation * coord;
 	}
 	return coord;
 }
 
-glm::vec4 Bone::getWorldCoordEndPoint() {
+glm::vec4 Bone::getWorldEndPoint() {
 	glm::vec4 coord = glm::vec4(length, 0, 0, 1);
 	if (parent == nullptr) {
-		coord = translation * rotation * coord;
+		coord = translation * relRotation * coord;
 	} else {
-		coord = parent->getWorldCoordMat() * translation * rotation * coord;
+		coord = parent->getWorldMat() * translation * relRotation * coord;
 	}
 	return coord;
 }
@@ -216,10 +212,21 @@ glm::mat4 Bone::makeRotateMat(glm::vec3 offset) {
 	return r;
 }
 
-glm::mat4 Bone::testTotalRotation() {
+glm::mat4 Bone::BoneToWorldRotation() {
 	if (parent == nullptr) {
 		return getRelRotation();
 	} else {
 		return parent->getRelRotation() * getRelRotation();
 	}
+}
+
+// returns the world coordinate for a point
+// that is relative to a bone
+// e.g. (0,0,0) for a bone
+// would return the bone's start point.
+glm::vec4 Bone::WorldPointFromBone(glm::vec4 p) {
+	// glm::vec4 q = glm::transpose(getAbsRotation()) * p;
+	// glm::vec4 s = getWorldStartPoint();
+	// return q + s;
+	return getWorldMat() * p;
 }

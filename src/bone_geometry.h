@@ -63,15 +63,16 @@ struct Bone {
         translation[3][2] = relOffset.z;
     }
 
-    glm::vec4 getWorldCoordStartPoint();
-    glm::vec4 getWorldCoordEndPoint();
+    glm::vec4 getWorldStartPoint();
+    glm::vec4 getWorldEndPoint();
     glm::mat4 getWorldCoordMat();
     glm::mat4 getAbsRotation(); // [^t ^n ^b] = R1R2...Ri
     glm::mat4 getRelRotation(); // Ri
     glm::mat4 getTranslation(); // Ti
     glm::mat4 getWorldMat();    // T1R1...TiRi
     static glm::mat4 makeRotateMat(glm::vec3 offset);
-    glm::mat4 testTotalRotation(); // R1R2...Ri
+    glm::mat4 BoneToWorldRotation(); // R1R2...Ri
+    glm::vec4 WorldPointFromBone(glm::vec4 p);
 
     Joint start;
     Joint end;

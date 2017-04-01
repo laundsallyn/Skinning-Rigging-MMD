@@ -116,8 +116,8 @@ int main(int argc, char* argv[])
 	LineMesh line_mesh;
 	// create_default(line_mesh);
 	create_linemesh(line_mesh, mesh.skeleton);
-	LineMesh cylinder;
-	LineMesh coordinate;
+	// LineMesh cylinder;
+	// LineMesh coordinate;
 	// create_cylinder(mesh.cylinder, mesh.skeleton, 1);
 	// create_coordinate(coordinate,mesh.skeleton,1);
 
@@ -330,9 +330,9 @@ int main(int argc, char* argv[])
 					);
 
 			RenderDataInput coordinate_pass_input;
-			coordinate_pass_input.assign(0,"vertex_position",coordinate.vertices.data(), coordinate.vertices.size(),4, GL_FLOAT);
-			coordinate_pass_input.assign(1,"color", coordinate.color.data(), coordinate.vertices.size(),4,GL_FLOAT);
-			coordinate_pass_input.assign_index(coordinate.bone_lines.data(), coordinate.bone_lines.size(),2);
+			coordinate_pass_input.assign(0,"vertex_position",mesh.coordinate.vertices.data(), mesh.coordinate.vertices.size(),4, GL_FLOAT);
+			coordinate_pass_input.assign(1,"color", mesh.coordinate.color.data(), mesh.coordinate.vertices.size(),4,GL_FLOAT);
+			coordinate_pass_input.assign_index(mesh.coordinate.bone_lines.data(), mesh.coordinate.bone_lines.size(),2);
 			RenderPass coordinate_pass(-1,
 					coordinate_pass_input,
 					{
@@ -349,7 +349,7 @@ int main(int argc, char* argv[])
 
 
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, mesh.cylinder.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
-			CHECK_GL_ERROR(glDrawElements(GL_LINES, coordinate.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
+			CHECK_GL_ERROR(glDrawElements(GL_LINES, mesh.coordinate.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
 
 			// mesh.cylinder.clear();
 			// mesh.coordinate.clear();

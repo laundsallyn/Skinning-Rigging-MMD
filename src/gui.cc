@@ -22,7 +22,7 @@ namespace {
 
 		float a = dx*dx + dz*dz;          // x^2 + z^2 = 1
 		float b = 2.0*(px*dx + pz*dz);    // ?
-		float c = px*px + pz*pz - radius; // x^2 + z^2 - 1 = c
+		float c = px*px + pz*pz - radius*radius; // x^2 + z^2 - 1 = c
 
 		if (a == 0.0) {
 			// direction is parallel to cylinder
@@ -226,31 +226,33 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 	current_bone_ = -1;
 	glm::vec3 world_coordinate_near =  glm::unProject(glm::vec3(current_x_, current_y_, 0.0), view_matrix_ * model_matrix_, projection_matrix_, viewport);
 
+	float t = 99999;
 	for (int n = 1; n < mesh_->getNumberOfBones(); ++n) {
 		// turn camera and camera direction into bone's coordinates
-		float t;
 		Bone* b = mesh_->skeleton.bones[n];
-		glm::vec4 start = b->getWorldCoordMat() * glm::vec4(0,0,0,1);
+		glm::vec4 start = b->getWorldMat() * glm::vec4(0,0,0,1);
 		glm::vec4 origin = glm::vec4(getCamera(),2) - start;
-		origin = b->rotation * origin;
+		glm::mat4 mod;
+		mod[0] = b->getAbsRotation()[2];
+		mod[1] = b->getAbsRotation()[0];
+		mod[2] = b->getAbsRotation()[1];
+		mod[3] = b->getAbsRotation()[3];
+		origin = mod * origin;
 		glm::vec4 dir = glm::vec4(glm::normalize(world_coordinate_near - getCamera()), 1);
-		dir = b->rotation * dir;
-		// if (b->id < 3) {
-			// std::cout << b->id << " origin: " << glm::to_string(origin) << std::endl;
-			// std::cout << b->id << " dir: " << glm::to_string(dir) << std::endl;
-		// }
-		if (IntersectCylinder(glm::vec3(origin), glm::vec3(dir), 0.5, b->length, &t)) {
-			std::cout << "origin: " << glm::to_string(origin) << std::endl;
-			std::cout << "dir: " << glm::to_string(dir) << std::endl;
-			if (setCurrentBone(n)) {
-				// create_cylinder(mesh_->cylinder, mesh_->skeleton, n);
-				break;
-			} else {
-				std::cout << "GUI BUG: attempted to set bone, but failure?" << std::endl;
+		dir = mod  * dir;
+		float tt;
+		if (IntersectCylinder(glm::vec3(origin), glm::vec3(dir), 0.5, b->length, &tt)) {
+			if (tt < t) {
+				if (setCurrentBone(n)) {
+					// empty
+				} else {
+					std::cout << "GUI BUG: attempted to set bone, but failure?" << std::endl;
+				}
 			}
+			
 		}
 	}
-	std::cout << "Current bone: " << getCurrentBone() << std::endl;
+	// std::cout << "Current bone: " << getCurrentBone() << std::endl;
 	
 }
 
