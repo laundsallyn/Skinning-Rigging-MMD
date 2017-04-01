@@ -22,7 +22,7 @@ void create_floor(std::vector<glm::vec4>& floor_vertices, std::vector<glm::uvec3
 // nice wireframe.
 
 void create_linemesh(LineMesh& line_mesh, Skeleton skeleton){
-
+	line_mesh.clear();
 	for(int i = 1; i < skeleton.bones.size(); ++i){
 		Bone* b = skeleton.bones[i];
 		line_mesh.vertices.push_back(b->WorldPointFromBone(glm::vec4( 0.0,0.0,0.0,1)));
@@ -45,6 +45,8 @@ void create_default(LineMesh& lm){
 }
 
 void create_cylinder(LineMesh& lm, Skeleton sk, int index){
+	lm.clear();
+
 	Bone* b = sk.bones[index];
 	glm::vec4 start = glm::vec4(0.0,0.0,0.0,1.0);
 	glm::vec4 end =  glm::vec4(b->length, 0, 0,1);
@@ -77,6 +79,7 @@ void create_cylinder(LineMesh& lm, Skeleton sk, int index){
 //remember to call create_cylinder and create_bone_coordinate at the same time.
 
 void create_coordinate(LineMesh& lm, Skeleton sk, int index){
+		lm.clear();
 		Bone* b = sk.bones[index];
 
 		glm::vec4 start = b->WorldPointFromBone(glm::vec4(0,0,0,1));

@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
 
 	LineMesh line_mesh;
 	// create_default(line_mesh);
-	create_linemesh(line_mesh, mesh.skeleton);
+	// create_linemesh(line_mesh, mesh.skeleton);
 	// LineMesh cylinder;
 	// LineMesh coordinate;
 	// create_cylinder(mesh.cylinder, mesh.skeleton, 1);
@@ -243,21 +243,7 @@ int main(int argc, char* argv[])
 
 	// FIXME: Create the RenderPass objects for bones here.
 	//        Otherwise do whatever you like.
-	RenderDataInput bone_pass_input;
-	bone_pass_input.assign(0,"vertex_position",line_mesh.vertices.data(), line_mesh.vertices.size(),4, GL_FLOAT);
-	bone_pass_input.assign_index(line_mesh.bone_lines.data(), line_mesh.bone_lines.size(),2);
-	RenderPass bone_pass(-1,
-			bone_pass_input,
-			{
-				vertex_shader,
-				line_mesh_geometry_shader,
-				bones_fragment_shader
-			},
-			{ line_mesh_model, std_view, std_proj,
-			  std_light},
-			{ "fragment_color" }
-			);
-	
+
 
 	RenderDataInput floor_pass_input;
 	floor_pass_input.assign(0, "vertex_position", floor_vertices.data(), floor_vertices.size(), 4, GL_FLOAT);
@@ -302,13 +288,27 @@ int main(int argc, char* argv[])
 
 		// FIXME: Draw bones first.
 		if(gui.isTransparent()){
+			create_linemesh(line_mesh, mesh.skeleton);
+			RenderDataInput bone_pass_input;
+			bone_pass_input.assign(0,"vertex_position",line_mesh.vertices.data(), line_mesh.vertices.size(),4, GL_FLOAT);
+			bone_pass_input.assign_index(line_mesh.bone_lines.data(), line_mesh.bone_lines.size(),2);
+			RenderPass bone_pass(-1,
+					bone_pass_input,
+					{
+						vertex_shader,
+						line_mesh_geometry_shader,
+						bones_fragment_shader
+					},
+					{ line_mesh_model, std_view, std_proj,
+					  std_light},
+					{ "fragment_color" }
+					);
+			
 			bone_pass.setup();
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, line_mesh.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
 		}
 		if(draw_cylinder ){
 			// std::cout<<"Drawing!!!!!"<<std::endl;
-			mesh.cylinder.clear();
-			mesh.coordinate.clear();
 			create_cylinder(mesh.cylinder, mesh.skeleton, current_bone);
 			create_coordinate(mesh.coordinate,mesh.skeleton,current_bone);
 				
