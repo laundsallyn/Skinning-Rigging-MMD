@@ -307,18 +307,11 @@ int main(int argc, char* argv[])
 		}
 		if(draw_cylinder ){
 			// std::cout<<"Drawing!!!!!"<<std::endl;
-			if(current_bone != last_bone){
-				mesh.cylinder.clear();
-				mesh.coordinate.clear();
-				create_cylinder(mesh.cylinder, mesh.skeleton, current_bone);
-				create_coordinate(mesh.coordinate,mesh.skeleton,current_bone);
-				std::cout << "start: " << glm::to_string(mesh.coordinate.vertices[0]) << std::endl;
-				std::cout << "normal: " << glm::to_string(mesh.coordinate.vertices[1]) << std::endl;
-				std::cout << "binorm: " << glm::to_string(mesh.coordinate.vertices[2]) << std::endl;
-				std::cout << "line 1: " << glm::to_string(mesh.coordinate.bone_lines[0])<<std::endl;
-				std::cout << "line 2: " << glm::to_string(mesh.coordinate.bone_lines[1])<<std::endl;
-
-			}
+			mesh.cylinder.clear();
+			mesh.coordinate.clear();
+			create_cylinder(mesh.cylinder, mesh.skeleton, current_bone);
+			create_coordinate(mesh.coordinate,mesh.skeleton,current_bone);
+				
 			RenderDataInput cylinder_pass_input;
 			cylinder_pass_input.assign(0,"vertex_position",mesh.cylinder.vertices.data(), mesh.cylinder.vertices.size(),4, GL_FLOAT);
 			cylinder_pass_input.assign_index(mesh.cylinder.bone_lines.data(), mesh.cylinder.bone_lines.size(),2);
