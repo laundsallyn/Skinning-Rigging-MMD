@@ -129,6 +129,10 @@ void Skeleton::constructBone(int jid) {
 	return;
 }
 
+Bone* Mesh::getBone(int n) {
+	return skeleton.bones[n];
+}
+
 /*
  * For this bone, returns T*R of parent up to,
  * and including, this bone
@@ -137,16 +141,6 @@ void Skeleton::constructBone(int jid) {
  * For Bone3 (1<-2<-3)
        reutrn T1*R1*T2*R2*T3*R3
  */
-
-// TODO: remove method
-glm::mat4 Bone::getWorldCoordMat() {
-	if (parent == nullptr) {
-		return translation; // TODO: reverse order?
-	} else {
-		//currently disabled rotation
-		return parent->getWorldCoordMat() * (translation);
-	}
-}
 
 glm::vec4 Bone::getWorldStartPoint() {
 	glm::vec4 coord = glm::vec4(0, 0, 0, 1);
@@ -181,11 +175,15 @@ glm::mat4 Bone::getAbsRotation() {
 }
 
 glm::mat4 Bone::getRelRotation() {
-	return relRotation;
+	return sRotation;
 }
 
 glm::mat4 Bone::getTranslation() {
 	return translation;
+}
+
+glm::mat4& Bone::getDeformedRotation() {
+	return sRotation;
 }
 
 glm::mat4 Bone::getWorldMat() {

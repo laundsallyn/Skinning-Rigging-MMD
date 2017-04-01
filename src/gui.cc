@@ -219,6 +219,16 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 		look_ = glm::column(orientation_, 2);
 	} else if (drag_bone && current_bone_ != -1) {
 		// FIXME: Handle bone rotation
+		Bone *b = mesh_->getBone(current_bone_);
+		glm::vec3 wc_start = glm::unProject(glm::vec3(mouse_start, 0), view_matrix_ * model_matrix_, projection_matrix_, viewport);
+		glm::vec3 wc_end = glm::unProject(glm::vec3(mouse_end, 0), view_matrix_ * model_matrix_, projection_matrix_, viewport);
+		glm::vec3 c = glm::cross(wc_end - wc_start, look_);
+
+		glm::mat4 rot = glm::rotate(rotation_speed_,  c);
+		b->sRotation[0] = rot * b->sRotation[0];
+		b->sRotation[1] = rot * b->sRotation[1];
+		b->sRotation[2] = rot * b->sRotation[2];
+
 		return ;
 	}
 

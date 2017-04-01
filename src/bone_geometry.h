@@ -46,8 +46,8 @@ struct Bone {
         id = e.id;
 
         // R = [tvec nvec bvec]
-        rotation = glm::mat4(glm::mat3(tangent, normal, bd));
-		rotation[3][3] = 1.0f;
+  //       rotation = glm::mat4(glm::mat3(tangent, normal, bd));
+		// rotation[3][3] = 1.0f;
 
         absRotation = makeRotateMat(e.offset);
         glm::mat4 pAbsRotInverse = glm::transpose(makeRotateMat(s.offset));
@@ -61,11 +61,12 @@ struct Bone {
         translation[3][0] = relOffset.x;
         translation[3][1] = relOffset.y;
         translation[3][2] = relOffset.z;
+
+        sRotation = relRotation;
     }
 
     glm::vec4 getWorldStartPoint();
     glm::vec4 getWorldEndPoint();
-    glm::mat4 getWorldCoordMat();
     glm::mat4 getAbsRotation(); // [^t ^n ^b] = R1R2...Ri
     glm::mat4 getRelRotation(); // Ri
     glm::mat4 getTranslation(); // Ti
@@ -73,6 +74,7 @@ struct Bone {
     static glm::mat4 makeRotateMat(glm::vec3 offset);
     glm::mat4 BoneToWorldRotation(); // R1R2...Ri
     glm::vec4 WorldPointFromBone(glm::vec4 p);
+    glm::mat4& getDeformedRotation(); //Si
 
     Joint start;
     Joint end;
@@ -82,9 +84,10 @@ struct Bone {
     glm::vec3 normal;
     glm::vec3 bd; // Binormal direction
     glm::mat4 translation;
-    glm::mat4 rotation;
+    // glm::mat4 rotation;
     glm::mat4 relRotation;
     glm::mat4 absRotation;
+    glm::mat4 sRotation; //deformed
     int id;
     Bone* parent;
 }typedef Bone;
@@ -97,6 +100,7 @@ struct Skeleton {
 	std::vector<SparseTuple> weights;
 
 	void constructBone(int jid);
+	Bone* getBone(int n);
 };
 
 class LineMesh{
@@ -136,9 +140,11 @@ struct Mesh {
 		return skeleton.bones.size() - 1;
 	}
 	glm::vec3 getCenter() const { return 0.5f * glm::vec3(bounds.min + bounds.max); }
+	Bone* getBone(int n);
 private:
 	void computeBounds();
 	void computeNormals();
+
 };
 
 #endif
