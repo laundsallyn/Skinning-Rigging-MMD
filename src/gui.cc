@@ -174,6 +174,12 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 		else
 			roll_speed = roll_speed_;
 		// FIXME: actually roll the bone here
+		if(current_bone_ == -1)
+			return;
+		Bone *b = mesh_->getBone(current_bone_);
+		glm::mat4 rotated = glm::rotate(roll_speed, glm::vec3(b->sRotation[0]));
+		b->sRotation = rotated * b->sRotation;
+
 	} else if (key == GLFW_KEY_C && action != GLFW_RELEASE) {
 		fps_mode_ = !fps_mode_;
 	} else if (key == GLFW_KEY_LEFT_BRACKET && action == GLFW_RELEASE) {
