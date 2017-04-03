@@ -249,10 +249,10 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 		glm::vec4 start = b->getWorldMat() * glm::vec4(0,0,0,1);
 		glm::vec4 origin = glm::vec4(getCamera(),2) - start;
 		glm::mat4 mod;
-		mod[0] = b->getAbsRotation()[2];
-		mod[1] = b->getAbsRotation()[0];
-		mod[2] = b->getAbsRotation()[1];
-		mod[3] = b->getAbsRotation()[3];
+		mod[0] = b->BoneToWorldRotation()[2];
+		mod[1] = b->BoneToWorldRotation()[0];
+		mod[2] = b->BoneToWorldRotation()[1];
+		mod[3] = b->BoneToWorldRotation()[3];
 		origin = mod * origin;
 		glm::vec4 dir = glm::vec4(glm::normalize(world_coordinate_near - getCamera()), 1);
 		dir = mod  * dir;
