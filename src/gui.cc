@@ -22,7 +22,7 @@ namespace {
 
 		float a = dx*dx + dz*dz;          // x^2 + z^2 = 1
 		float b = 2.0*(px*dx + pz*dz);    // ?
-		float c = px*px + pz*pz - radius*radius; // x^2 + z^2 - 1 = c
+		float c = px*px + pz*pz - radius*radius; // x^2 + z^2 - r^2 = c
 
 		if (a == 0.0) {
 			// direction is parallel to cylinder
@@ -69,18 +69,18 @@ namespace {
 		float dy = direction[1];
 		float RAY_EPSILON = 0.000001;
 
-		if (dy == 0.0) {
+		if (dy == 0.0) { // parallel to caps
 			return false;
 		}
 
 		float t1, t2;
 
 		if (dy > 0.0) {
-			t1 = (-py)/py;
-			t2 = (1.0-py)/dy;
+			t1 = (-py)/dy;
+			t2 = (height-py)/dy;
 		} else {
-			t1 = (1.0-py)/dy;
-			t2 = (-py)/py;
+			t1 = (height-py)/dy;
+			t2 = (-py)/dy;
 		}
 
 		if (t2 < RAY_EPSILON) {
@@ -89,14 +89,14 @@ namespace {
 
 		if (t1 >= RAY_EPSILON) {
 			glm::vec3 p = origin + direction*t1;
-			if ((p[0]*p[0] + p[2]*p[2]) <= radius) {
+			if ((p[0]*p[0] + p[2]*p[2]) <= radius*radius) {
 				*t = t1;
 				return true;
 			} 
 		}
 
 		glm::vec3 p = origin + direction*t2;
-		if ((p[0]*p[0] + p[2]*p[2]) <= radius) {
+		if ((p[0]*p[0] + p[2]*p[2]) <= radius*radius) {
 			*t = t2;
 			return true;
 		}
@@ -109,14 +109,6 @@ namespace {
 	bool IntersectCylinder(const glm::vec3& origin, const glm::vec3& direction,
 			float radius, float height, float* t)
 	{
-		glm::vec3 base(0, 0, 0); // base of cylinder
-		glm::vec3 up(0, 1, 0);   // direction of cylinder from base
-
-		// if (direction[1] == 0.0 && (origin[1] > height || origin[1] < 0.0)) {
-		// 	// ray parallel to caps, and camera
-		// 	// position is above/below cylinder
-		// 	return false;
-		// }
 
 		if (intersectCaps(origin, direction, radius, height, t)) {
 			float tt;
@@ -246,7 +238,7 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 	for (int n = 1; n < mesh_->getNumberOfBones(); ++n) {
 		// turn camera and camera direction into bone's coordinates
 		Bone* b = mesh_->skeleton.bones[n];
-		glm::vec4 start = b->getWorldMat() * glm::vec4(0,0,0,1);
+		glm::vec4 start = b->WorldPointFromBone(glm::vec4(0,0,0,1));
 		glm::vec4 origin = glm::vec4(getCamera(),2) - start;
 		glm::mat4 mod;
 		mod[0] = b->BoneToWorldRotation()[2];
