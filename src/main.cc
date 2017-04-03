@@ -348,10 +348,6 @@ int main(int argc, char* argv[])
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, mesh.cylinder.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
 			coordinate_pass.setup();
 			CHECK_GL_ERROR(glDrawElements(GL_LINES, mesh.coordinate.bone_lines.size()*2, GL_UNSIGNED_INT, 0));
-
-			// mesh.cylinder.clear();
-			// mesh.coordinate.clear();
-
 		}
 
 		// Then draw floor.
