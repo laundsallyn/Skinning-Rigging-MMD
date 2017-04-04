@@ -139,7 +139,7 @@ struct Mesh {
 	void updateAnimation();
 	int getNumberOfBones() const 
 	{ 
-		return skeleton.bones.size() - 1;
+		return skeleton.bones.size()-1;
 	}
 	glm::vec3 getCenter() const { return 0.5f * glm::vec3(bounds.min + bounds.max); }
 	Bone* getBone(int n);

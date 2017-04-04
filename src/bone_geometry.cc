@@ -78,7 +78,7 @@ void Mesh::loadpmd(const std::string& fn)
 		skeleton.constructBone(n);
 	}
 
-	weight_map.resize(getNumberOfBones());
+	weight_map.resize(getNumberOfBones()+1);
 	for (uint n = 0; n < weight_map.size(); ++n) {
 		weight_map[n].resize(vertices.size());
 	}
@@ -90,8 +90,8 @@ void Mesh::loadpmd(const std::string& fn)
 			int bone_id = p.children[m];
 			weight_map[bone_id][w.vid] = w.weight;
 		}
-
 	}
+
 
 	// for (int n = 1; n < 4; ++n) {
 	// 	Bone* b = skeleton.bones[n];

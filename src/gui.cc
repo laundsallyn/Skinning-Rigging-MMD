@@ -175,13 +175,21 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 	} else if (key == GLFW_KEY_C && action != GLFW_RELEASE) {
 		fps_mode_ = !fps_mode_;
 	} else if (key == GLFW_KEY_LEFT_BRACKET && action == GLFW_RELEASE) {
+
 		current_bone_--;
 		current_bone_ += mesh_->getNumberOfBones();
 		current_bone_ %= mesh_->getNumberOfBones();
+		if(current_bone_ - 1 < 1)
+			current_bone_ = mesh_->getNumberOfBones();
+		std::cout<<"_________current bone "<<current_bone_<<"__________"<<std::endl;
+
 	} else if (key == GLFW_KEY_RIGHT_BRACKET && action == GLFW_RELEASE) {
 		current_bone_++;
 		current_bone_ += mesh_->getNumberOfBones();
 		current_bone_ %= mesh_->getNumberOfBones();
+		if( current_bone_ == 0 or current_bone_ > mesh_->getNumberOfBones()+1)
+			current_bone_ = 1;
+		std::cout<<"_________current bone "<<current_bone_<<"__________"<<std::endl;
 	} else if (key == GLFW_KEY_T && action != GLFW_RELEASE) {
 		transparent_ = !transparent_;
 	}
