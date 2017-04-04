@@ -44,6 +44,7 @@ struct Bone {
         bd = glm::normalize(glm::cross(tangent,normal));
         length = glm::length(end.offset);
         id = e.id;
+        pid = s.id;
 
         // R = [tvec nvec bvec]
   //       rotation = glm::mat4(glm::mat3(tangent, normal, bd));
@@ -79,7 +80,6 @@ struct Bone {
     Joint start;
     Joint end;
     float length;
-    float weight;
     glm::vec3 tangent;
     glm::vec3 normal;
     glm::vec3 bd; // Binormal direction
@@ -89,6 +89,7 @@ struct Bone {
     glm::mat4 absRotation;
     glm::mat4 sRotation; //deformed
     int id;
+    int pid;
     Bone* parent;
 }typedef Bone;
 
@@ -97,7 +98,7 @@ struct Skeleton {
 	// FIXME: create skeleton and bone data structures
 	std::vector<Joint> joints;
 	std::vector<Bone*>  bones;
-	std::vector<SparseTuple> weights;
+	// std::vector<SparseTuple> weights;
 
 	void constructBone(int jid);
 	Bone* getBone(int n);
@@ -128,6 +129,7 @@ struct Mesh {
 	std::vector<glm::vec4> face_normals;
 	std::vector<glm::vec2> uv_coordinates;
 	std::vector<Material> materials;
+	std::vector<std::vector<float> > weight_map;
 	BoundingBox bounds;
 	Skeleton skeleton;
 	LineMesh cylinder;

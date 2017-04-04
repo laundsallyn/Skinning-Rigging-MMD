@@ -57,17 +57,15 @@ void Mesh::loadpmd(const std::string& fn)
 
 	while (mr.getJoint(id, offset, parent)) {
 		//create Joints with data
-		// std::cout << "  id = " << id << std::endl;
-		// std::cout << "    parentID = " << parent << std::endl;
 		Joint j(id, offset, parent);
-
 		skeleton.joints.push_back(j);
-		// std::cout << "joint" << id << std::endl;
 		++id;
 	}
-	mr.getJointWeights(skeleton.weights);
+	std::vector<SparseTuple> weights;
+	mr.getJointWeights(weights);
 	std::cout << "Number of Joints found: " << id << std::endl;
 	std::cout << "Joint List size: " << skeleton.joints.size() << std::endl;
+	std::cout << "Weights List size: " << weights.size() << std::endl;
 
 	// If joint.parent == -1, that joint is cannot represent a bone
 	// bone is based off end joint -> 
@@ -76,20 +74,32 @@ void Mesh::loadpmd(const std::string& fn)
 
 	skeleton.bones[0] = nullptr; // there is no bone 0, because joint 0 
 	                             // is not an endpoint for a bone
-	for (int n = 1; n < skeleton.joints.size(); ++n) {
+	for (uint n = 1; n < skeleton.joints.size(); ++n) {
 		skeleton.constructBone(n);
-		// Bone* b = skeleton.bones[n];
-		// std::cout << "joint" << n << std::endl;
-		// printMat(b->getWorldCoordMat());
 	}
 
-	for (int n = 1; n < 4; ++n) {
-		Bone* b = skeleton.bones[n];
-		std::cout << "-- Bone " << b->id << " --" << std::endl;
-		// std::cout << glm::to_string(b->WorldPointFromBone(glm::vec4(0, 0 ,0, 1))) << std::endl;
-		// std::cout << glm::to_string(b->WorldPointFromBone(glm::vec4(b->length, 0 ,0, 1))) << std::endl;
-		// std::cout << glm::to_string(b->WorldPointFromBone(glm::vec4(1, 1, 1, 1))) << std::endl;
+	weight_map.resize(getNumberOfBones());
+	for (uint n = 0; n < weight_map.size(); ++n) {
+		weight_map[n].resize(vertices.size());
 	}
+	for (uint n = 0; n < weights.size(); ++n) {
+		SparseTuple w = weights[n];
+		Joint p = skeleton.joints[w.jid];
+		std::cout << "NO ERROR: " << n << std::endl;
+		for (uint m = 0; m < p.children.size(); ++m) {
+			int bone_id = p.children[m];
+			weight_map[bone_id][w.vid] = w.weight;
+		}
+
+	}
+
+	// for (int n = 1; n < 4; ++n) {
+	// 	Bone* b = skeleton.bones[n];
+	// 	std::cout << "-- Bone " << b->id << " --" << std::endl;
+	// 	// std::cout << glm::to_string(b->WorldPointFromBone(glm::vec4(0, 0 ,0, 1))) << std::endl;
+	// 	// std::cout << glm::to_string(b->WorldPointFromBone(glm::vec4(b->length, 0 ,0, 1))) << std::endl;
+	// 	// std::cout << glm::to_string(b->WorldPointFromBone(glm::vec4(1, 1, 1, 1))) << std::endl;
+	// }
 }
 
 void Mesh::updateAnimation()
