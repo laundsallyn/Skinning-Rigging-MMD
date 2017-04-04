@@ -85,7 +85,6 @@ void Mesh::loadpmd(const std::string& fn)
 	for (uint n = 0; n < weights.size(); ++n) {
 		SparseTuple w = weights[n];
 		Joint p = skeleton.joints[w.jid];
-		std::cout << "NO ERROR: " << n << std::endl;
 		for (uint m = 0; m < p.children.size(); ++m) {
 			int bone_id = p.children[m];
 			weight_map[bone_id][w.vid] = w.weight;
