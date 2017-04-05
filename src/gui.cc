@@ -185,7 +185,6 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 		current_bone_ %= mesh_->getNumberOfBones();
 		if(current_bone_ - 1 < 1)
 			current_bone_ = mesh_->getNumberOfBones();
-		std::cout<<"_________current bone "<<current_bone_<<"__________"<<std::endl;
 
 	} else if (key == GLFW_KEY_RIGHT_BRACKET && action == GLFW_RELEASE) {
 		current_bone_++;
@@ -193,7 +192,6 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 		current_bone_ %= mesh_->getNumberOfBones();
 		if( current_bone_ == 0 or current_bone_ > mesh_->getNumberOfBones()+1)
 			current_bone_ = 1;
-		std::cout<<"_________current bone "<<current_bone_<<"__________"<<std::endl;
 	} else if (key == GLFW_KEY_T && action != GLFW_RELEASE) {
 		transparent_ = !transparent_;
 	}
@@ -247,7 +245,7 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 	glm::vec3 world_coordinate_near =  glm::unProject(glm::vec3(current_x_, current_y_, 0.0), view_matrix_ * model_matrix_, projection_matrix_, viewport);
 
 	float t = 99999;
-	for (int n = 1; n < mesh_->getNumberOfBones(); ++n) {
+	for (int n = 1; n <= mesh_->getNumberOfBones(); ++n) {
 		// turn camera and camera direction into bone's coordinates
 		Bone* b = mesh_->skeleton.bones[n];
 		glm::vec4 start = b->WorldPointFromBone(glm::vec4(0,0,0,1));
@@ -263,8 +261,10 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 		float tt;
 		if (IntersectCylinder(glm::vec3(origin), glm::vec3(dir), 0.5, b->length, &tt)) {
 			if (tt < t) {
+				std::cout<<"__current bone: "<<n<<"__"<<std::endl;
 				if (setCurrentBone(n)) {
 					// empty
+
 				} else {
 					std::cout << "GUI BUG: attempted to set bone, but failure?" << std::endl;
 				}
@@ -310,7 +310,7 @@ MatrixPointers GUI::getMatrixPointers() const
 
 bool GUI::setCurrentBone(int i)
 {
-	if (i < 0 || i >= mesh_->getNumberOfBones())
+	if (i < 0 || i >mesh_->getNumberOfBones())
 		return false;
 	current_bone_ = i;
 	return true;
