@@ -103,9 +103,21 @@ void Mesh::loadpmd(const std::string& fn)
 
 void Mesh::updateAnimation()
 {
-	animated_vertices = vertices;
+	// animated_vertices(vertices.size(), glm::vec4(0,0,0,0));
 	// FIXME: blend the vertices to animated_vertices, rather than copy
 	//        the data directly.
+
+	for (int i = 1; i < skeleton.bones.size(); ++i) {
+		// glm::vec4 u = vertices[i];
+		Bone *b = getBone(i);
+		glm::mat4 u = b->UndeformedToWorld();
+		u = glm::inverse(u);
+		glm::mat4 d = b->DeformedToWorld();
+		for (int j = 0; j < vertices.size(); ++j) {
+			float w = weight_map[i][j];
+			animated_vertices[j] += w * d * u * vertices[j];
+		}
+	}
 }
 
 
@@ -151,25 +163,6 @@ Bone* Mesh::getBone(int n) {
        reutrn T1*R1*T2*R2*T3*R3
  */
 
-glm::vec4 Bone::getWorldStartPoint() {
-	glm::vec4 coord = glm::vec4(0, 0, 0, 1);
-	if (parent == nullptr) {
-		coord = translation * coord;
-	} else {
-		coord = parent->getWorldMat() * translation * coord;
-	}
-	return coord;
-}
-
-glm::vec4 Bone::getWorldEndPoint() {
-	glm::vec4 coord = glm::vec4(length, 0, 0, 1);
-	if (parent == nullptr) {
-		coord = translation * relRotation * coord;
-	} else {
-		coord = parent->getWorldMat() * translation * relRotation * coord;
-	}
-	return coord;
-}
 
 void printMat(glm::mat4 mat) {
 	std::cout << "glm::mat4" << std::endl;
@@ -177,30 +170,6 @@ void printMat(glm::mat4 mat) {
 		std::cout << glm::to_string(glm::row(mat, i)) << std::endl;
 	}
 	std::cout << std::endl;
-}
-
-glm::mat4 Bone::getAbsRotation() {
-	return absRotation;
-}
-
-glm::mat4 Bone::getRelRotation() {
-	return sRotation;
-}
-
-glm::mat4 Bone::getTranslation() {
-	return translation;
-}
-
-glm::mat4& Bone::getDeformedRotation() {
-	return sRotation;
-}
-
-glm::mat4 Bone::getWorldMat() {
-	if (parent == nullptr) {
-		return translation * getRelRotation();
-	} else {
-		return (parent->getWorldMat() * translation * getRelRotation());
-	}
 }
 
 glm::mat4 Bone::makeRotateMat(glm::vec3 offset) {
@@ -212,18 +181,46 @@ glm::mat4 Bone::makeRotateMat(glm::vec3 offset) {
 	normal[normalInd] = 1;
 	normal = glm::normalize(glm::cross(tangent, normal));
 
-	glm::vec3(bd) = glm::normalize(glm::cross(tangent, normal));
+	glm::vec3 bd = glm::normalize(glm::cross(tangent, normal));
 	glm::mat4 r = glm::mat4(glm::mat3(tangent, normal, bd));
 	r[3][3] = 1.0f;
 
 	return r;
 }
 
+glm::mat4& Bone::getAbsRotation() {
+	return absRotation;
+}
+
+glm::mat4& Bone::getRelRotation() {
+	return sRotation;
+}
+
+glm::mat4& Bone::getTranslation() {
+	return translation;
+}
+
+glm::mat4& Bone::getDeformedRotation() {
+	return sRotation;
+}
+
+glm::mat4& Bone::getUndeformedRotation() {
+	return relRotation;
+}
+
+glm::mat4 Bone::getWorldMat() {
+	if (parent == nullptr) {
+		return translation * getDeformedRotation();
+	} else {
+		return (parent->getWorldMat() * translation * getDeformedRotation());
+	}
+}
+
 glm::mat4 Bone::BoneToWorldRotation() {
 	if (parent == nullptr) {
-		return getRelRotation();
+		return getDeformedRotation();
 	} else {
-		return parent->getRelRotation() * getRelRotation();
+		return parent->getDeformedRotation() * getDeformedRotation();
 	}
 }
 
@@ -232,8 +229,21 @@ glm::mat4 Bone::BoneToWorldRotation() {
 // e.g. (0,0,0) for a bone
 // would return the bone's start point.
 glm::vec4 Bone::WorldPointFromBone(glm::vec4 p) {
-	// glm::vec4 q = glm::transpose(getAbsRotation()) * p;
-	// glm::vec4 s = getWorldStartPoint();
-	// return q + s;
 	return getWorldMat() * p;
+}
+
+glm::mat4 Bone::UndeformedToWorld() {
+	if (parent == nullptr) {
+		return translation * getUndeformedRotation();
+	} else {
+		return (parent->UndeformedToWorld() * translation * getUndeformedRotation());
+	}
+}
+
+glm::mat4 Bone::DeformedToWorld() {
+	if (parent == nullptr) {
+		return translation * getDeformedRotation();
+	} else {
+		return (parent->DeformedToWorld() * translation * getDeformedRotation());
+	}
 }
