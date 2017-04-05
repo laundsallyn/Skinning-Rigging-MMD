@@ -171,6 +171,7 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 		Bone *b = mesh_->getBone(current_bone_);
 		glm::mat4 rotated = glm::rotate(roll_speed, glm::vec3(b->sRotation[0]));
 		b->sRotation = rotated * b->sRotation;
+		pose_changed_ = true;
 
 	} else if (key == GLFW_KEY_C && action != GLFW_RELEASE) {
 		fps_mode_ = !fps_mode_;
@@ -234,7 +235,7 @@ void GUI::mousePosCallback(double mouse_x, double mouse_y)
 		b->sRotation[0] = rot * b->sRotation[0];
 		b->sRotation[1] = rot * b->sRotation[1];
 		b->sRotation[2] = rot * b->sRotation[2];
-
+		pose_changed_ = true;
 		return ;
 	}
 

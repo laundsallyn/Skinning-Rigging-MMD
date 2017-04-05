@@ -103,20 +103,39 @@ void Mesh::loadpmd(const std::string& fn)
 
 void Mesh::updateAnimation()
 {
-	// animated_vertices(vertices.size(), glm::vec4(0,0,0,0));
+	animated_vertices = vertices;
 	// FIXME: blend the vertices to animated_vertices, rather than copy
 	//        the data directly.
 
-	for (int i = 1; i < skeleton.bones.size(); ++i) {
-		// glm::vec4 u = vertices[i];
-		Bone *b = getBone(i);
-		glm::mat4 u = b->UndeformedToWorld();
-		u = glm::inverse(u);
-		glm::mat4 d = b->DeformedToWorld();
-		for (int j = 0; j < vertices.size(); ++j) {
-			float w = weight_map[i][j];
-			animated_vertices[j] += w * d * u * vertices[j];
+	// for (int i = 1; i < skeleton.bones.size(); ++i) {
+	// 	// glm::vec4 u = vertices[i];
+	// 	Bone *b = getBone(i);
+	// 	glm::mat4 u = b->UndeformedToWorld();
+	// 	u = glm::inverse(u);
+	// 	glm::mat4 d = b->DeformedToWorld();
+	// 	for (int j = 0; j < vertices.size(); ++j) {
+	// 		float w = weight_map[i][j];
+	// 		animated_vertices[j] += w * d * u * vertices[j];
+	// 	}
+	// }
+	for (int i = 0; i < vertices.size(); ++i) {
+		glm::vec4 v = vertices[i];
+
+		glm::vec4 a(0.0f, 0.0f, 0.0f, 0.0f);
+		for (int j = 1; j < skeleton.bones.size(); ++j) {
+			Bone *b = getBone(j);
+			float w = weight_map[j][i];
+			if (w <= 0.000001) {
+				continue;
+			}
+			glm::mat4 u = b->UndeformedToWorld();
+			u = glm::inverse(u);
+			glm::mat4 d = b->DeformedToWorld();
+			a += (w * d * u * v);
 		}
+		// std::cout << "V{" << i << "}: " << glm::to_string(a) << std::endl;
+
+		animated_vertices[i] = a;
 	}
 }
 
